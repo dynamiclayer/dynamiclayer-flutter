@@ -1,26 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../dynamiclayers.dart';
 
-/// ---------------------------------------------------------------------------
-/// 🧩 DynamicLayers – Accordion
-/// ---------------------------------------------------------------------------
-/// States:
-/// - collapsed (default)
-/// - expanded
-/// - disabled  (title shows strike-through, muted colors, no interaction)
-///
-/// Visuals:
-/// - 1px top & bottom borders (grey200 by default)
-/// - Optional internal separator (DLSeparator) between header and content
-/// - Chevron rotates on expand/collapse
-///
-/// Usage:
-/// DLAccordion(
-///   trigger: 'Accordion',
-///   content: 'Lorem ipsum…',
-///   state: DLAccordionState.collapsed, // or expanded / disabled
-///   showSeparator: true,
-/// )
 enum DLAccordionState { collapsed, expanded, disabled }
 
 class DLAccordion extends StatefulWidget {
@@ -30,15 +10,14 @@ class DLAccordion extends StatefulWidget {
     this.trigger = 'Accordion',
     this.content =
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
-    this.showSeparator = true,
+    this.showSeparator = false,
+    this.showTopBorder = true,
+    this.showBottomBorder = true,
 
     // Layout
     this.width,
-    this.padding = EdgeInsets.zero,
-    this.headerPadding = const EdgeInsets.symmetric(
-      horizontal: DLSpacing.p0,
-      vertical: DLSpacing.p0,
-    ),
+    // keep API the same but we'll only honor LEFT/RIGHT to guarantee 48 height
+    this.headerPadding = const EdgeInsets.symmetric(horizontal: DLSpacing.p0),
     this.contentPadding = const EdgeInsets.fromLTRB(
       DLSpacing.p0,
       DLSpacing.p12,
@@ -67,50 +46,31 @@ class DLAccordion extends StatefulWidget {
     this.onChanged,
   });
 
-  /// Initial visual state.
   final DLAccordionState state;
-
-  /// Header text (left aligned).
   final String trigger;
-
-  /// Body text shown when expanded.
   final String content;
 
-  /// Show a thin separator line between header and content (via DLSeparator).
   final bool showSeparator;
+  final bool showTopBorder;
+  final bool showBottomBorder;
 
-  /// Optional fixed width for the whole widget (otherwise expands to parent).
   final double? width;
-
-  /// Outer padding around the whole accordion container.
-  final EdgeInsetsGeometry padding;
-
-  /// Padding for the header row.
-  final EdgeInsetsGeometry headerPadding;
-
-  /// Padding for the content area (when expanded).
+  final EdgeInsetsGeometry headerPadding; // horizontal only is applied
   final EdgeInsetsGeometry contentPadding;
 
-  /// Border color for top & bottom.
   final Color borderColor;
-
-  /// Border thickness for top & bottom.
   final double borderThickness;
 
-  /// Style overrides.
   final TextStyle? triggerStyle;
   final TextStyle? disabledTriggerStyle;
   final TextStyle? contentStyle;
 
-  /// Custom trailing chevron (defaults to Icons.expand_more).
   final Widget? trailingChevron;
   final double chevronSize;
 
-  /// Expand/collapse animation.
   final Duration duration;
   final Curve curve;
 
-  /// Emits `true` when expanded, `false` when collapsed.
   final ValueChanged<bool>? onChanged;
 
   @override
@@ -137,13 +97,20 @@ class _DLAccordionState extends State<DLAccordion>
 
   @override
   Widget build(BuildContext context) {
+    // Inter Medium (w500)
     final baseTriggerStyle =
-        widget.triggerStyle ?? DLTypos.textBaseBold(color: DLColors.black);
+        (widget.triggerStyle ?? DLTypos.textBaseRegular(color: DLColors.black))
+            .copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w500);
+
     final disabledTriggerStyle =
-        widget.disabledTriggerStyle ??
-        DLTypos.textBaseBold(
-          color: DLColors.grey600,
-        ).copyWith(decoration: TextDecoration.lineThrough);
+        (widget.disabledTriggerStyle ??
+                DLTypos.textBaseRegular(color: DLColors.grey600))
+            .copyWith(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.lineThrough,
+            );
+
     final contentStyle =
         widget.contentStyle ?? DLTypos.textSmRegular(color: DLColors.grey700);
 
@@ -155,35 +122,55 @@ class _DLAccordionState extends State<DLAccordion>
           color: _disabled ? DLColors.grey600 : DLColors.black,
         );
 
+    // Resolve header padding but apply only LEFT/RIGHT to keep exact 48 height
+    final resolved = widget.headerPadding.resolve(Directionality.of(context));
+    final horizontalOnly = EdgeInsets.only(
+      left: resolved.left,
+      right: resolved.right,
+    );
+
+    // ---- Header: EXACT 48px (padding inside, horizontal only)
     final header = InkWell(
       onTap: _disabled ? null : _toggle,
       splashColor: Colors.transparent,
       focusColor: Colors.transparent,
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: Padding(
-        padding: widget.headerPadding,
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                widget.trigger,
-                style: _disabled ? disabledTriggerStyle : baseTriggerStyle,
-                overflow: TextOverflow.ellipsis,
+      child: SizedBox(
+        height: 48, // ✅ fixed height
+        child: Padding(
+          padding: horizontalOnly,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.trigger,
+                    style: _disabled ? disabledTriggerStyle : baseTriggerStyle,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            ),
-            AnimatedRotation(
-              turns: _expanded ? 0.5 : 0, // 0 -> down, 0.5 -> up
-              duration: widget.duration,
-              curve: widget.curve,
-              child: chevron,
-            ),
-          ],
+              AnimatedRotation(
+                turns: _expanded ? 0.5 : 0.0,
+                duration: widget.duration,
+                curve: widget.curve,
+                child: SizedBox(
+                  width: widget.chevronSize,
+                  height: widget.chevronSize,
+                  child: Center(child: chevron),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
 
-    final separator = widget.showSeparator
+    // Optional internal separator (only when expanded to avoid double borders)
+    final separator = (widget.showSeparator && _expanded)
         ? Padding(
             padding: const EdgeInsets.only(top: DLSpacing.p8),
             child: DLSeparator(
@@ -195,31 +182,45 @@ class _DLAccordionState extends State<DLAccordion>
           )
         : const SizedBox.shrink();
 
-    final body = ClipRect(
-      child: AnimatedSize(
-        duration: widget.duration,
-        curve: widget.curve,
-        child: _expanded
-            ? Padding(
-                padding: widget.contentPadding,
-                child: Text(widget.content, style: contentStyle),
-              )
-            : const SizedBox.shrink(),
-      ),
+    // Fade-in from top for content
+    final body = AnimatedSwitcher(
+      duration: widget.duration,
+      switchInCurve: widget.curve,
+      switchOutCurve: widget.curve,
+      transitionBuilder: (child, anim) {
+        final slide = Tween<Offset>(
+          begin: const Offset(0, -0.05),
+          end: Offset.zero,
+        ).animate(anim);
+        return FadeTransition(
+          opacity: anim,
+          child: SlideTransition(position: slide, child: child),
+        );
+      },
+      child: _expanded
+          ? Padding(
+              key: const ValueKey('expanded'),
+              padding: widget.contentPadding,
+              child: Text(widget.content, style: contentStyle),
+            )
+          : const SizedBox.shrink(key: ValueKey('collapsed')),
     );
 
-    final container = Container(
+    return Container(
       width: widget.width,
-      padding: widget.padding,
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: widget.borderColor,
-            width: widget.borderThickness,
+            color: widget.showTopBorder
+                ? widget.borderColor
+                : Colors.transparent,
+            width: widget.showTopBorder ? widget.borderThickness : 0,
           ),
           bottom: BorderSide(
-            color: widget.borderColor,
-            width: widget.borderThickness,
+            color: widget.showBottomBorder
+                ? widget.borderColor
+                : Colors.transparent,
+            width: widget.showBottomBorder ? widget.borderThickness : 0,
           ),
         ),
       ),
@@ -228,7 +229,5 @@ class _DLAccordionState extends State<DLAccordion>
         children: [header, if (widget.showSeparator) separator, body],
       ),
     );
-
-    return container;
   }
 }

@@ -435,7 +435,7 @@ class _AccordionFactory {
       content: content,
       showSeparator: showSeparator,
       width: width,
-      padding: padding,
+
       headerPadding: headerPadding,
       contentPadding: contentPadding,
       borderColor: borderColor,

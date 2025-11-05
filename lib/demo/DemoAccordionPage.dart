@@ -54,6 +54,7 @@ class _AccordionDefault extends StatelessWidget {
           trigger: 'Accordion',
           content: DemoAccordionPage._lorem,
           showSeparator: true,
+          showTopBorder: false,
           // borders & layout as per your spec
           borderColor: DLColors.grey200,
           borderThickness: 1.0,

@@ -6,8 +6,6 @@ import '../../dynamiclayers.dart';
 /// ----------------------------------------------------------------------------
 /// Demonstrates:
 /// 1) Sizes (xs, sm, md, lg) × states (normal, hover, pressed, disabled, active)
-/// 2) Icons (left / right / both)
-/// 3) Custom overrides (underline color/thickness + foreground)
 ///
 /// Default ghost spec (from component):
 /// - transparent bg
@@ -29,16 +27,6 @@ class DemoGhostButtonPage extends StatelessWidget {
             _SectionTitle('1) Sizes × States'),
             SizedBox(height: 8),
             _GhostSizesAndStatesGallery(),
-
-            SizedBox(height: 24),
-            _SectionTitle('2) Icons (Left / Right / Both)'),
-            SizedBox(height: 8),
-            _GhostIconsGallery(),
-
-            SizedBox(height: 24),
-            _SectionTitle('3) Custom Overrides'),
-            SizedBox(height: 8),
-            _GhostCustomsGallery(),
           ],
         ),
       ),
@@ -106,168 +94,6 @@ class _SizeRow {
   const _SizeRow({required this.size, required this.label});
   final DLButtonSize size;
   final String label;
-}
-
-// -----------------------------------------------------------------------------
-// 2) Icons Gallery
-// -----------------------------------------------------------------------------
-class _GhostIconsGallery extends StatelessWidget {
-  const _GhostIconsGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _GalleryRow(
-          title: 'Icons — Left',
-          children: [
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Add item',
-              size: DLButtonSize.md,
-              iconLeft: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Add item (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconLeft: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Add item (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconLeft: const Icon(Icons.add),
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Icons — Right',
-          children: [
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Next step',
-              size: DLButtonSize.md,
-              iconRight: const Icon(Icons.chevron_right),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Next step (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconRight: const Icon(Icons.chevron_right),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Next step (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconRight: const Icon(Icons.chevron_right),
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Icons — Both',
-          children: [
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Upload & confirm',
-              size: DLButtonSize.md,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Upload & confirm (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Upload & confirm (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 3) Custom Overrides Gallery
-// -----------------------------------------------------------------------------
-class _GhostCustomsGallery extends StatelessWidget {
-  const _GhostCustomsGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _GalleryRow(
-          title: 'Underline customization',
-          children: [
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Thicker line',
-              size: DLButtonSize.md,
-              underlineThickness: 2.0,
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Blue underline',
-              size: DLButtonSize.md,
-              underlineColor: Colors.blue,
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Green text',
-              size: DLButtonSize.md,
-              foregroundColor: Colors.green.shade800,
-              onPressed: () {},
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Sizing & fixed width',
-          children: [
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Fixed 140px',
-              size: DLButtonSize.md,
-              width: 140,
-              height: 40,
-              // keeps width fixed (instead of minWidth behavior)
-              // note: pass fixedWidth: true in your ghost factory if supported; otherwise remove this example
-              // fixedWidth: true,
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.ghost,
-              label: 'Compact (xs)',
-              size: DLButtonSize.xs,
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
 // -----------------------------------------------------------------------------

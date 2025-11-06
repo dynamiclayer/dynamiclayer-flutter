@@ -59,97 +59,35 @@ class _ButtonFactory {
     // layout
     bool fixedWidth = false,
 
-    // primary-only affordances (kept for parity)
+    // primary-only affordances (kept for parity; available to all)
     bool affordanceTextForIcons = false,
     String plusAffordance = ' +',
     String ellipsisAffordance = ' …',
   }) {
-    switch (type) {
-      case DLButtonType.primary:
-        return DLPrimaryButton(
-          label: label,
-          iconLeft: iconLeft,
-          iconRight: iconRight,
-          onPressed: onPressed,
-          enabled: enabled,
-          size: size,
-          state: state,
-          minWidth: width ?? DLButtonTokens.widthOf(size),
-          minHeight: height ?? DLButtonTokens.heightOf(size),
-          radius: radius ?? DLButtonTokens.defaultRadius,
-          gap: gap ?? DLButtonTokens.defaultGap,
-          padding: padding ?? DLButtonTokens.padding(size),
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          fixedWidth: fixedWidth,
-          affordanceTextForIcons: affordanceTextForIcons,
-          plusAffordance: plusAffordance,
-          ellipsisAffordance: ellipsisAffordance,
-        );
+    // Everything funnels into the unified DLButton
+    return DLButton(
+      type: type,
+      label: label,
+      iconLeft: iconLeft,
+      iconRight: iconRight,
+      onPressed: onPressed,
+      enabled: enabled,
+      size: size,
 
-      case DLButtonType.secondary:
-        return buildSecondaryButton(
-          label: label,
-          iconLeft: iconLeft,
-          iconRight: iconRight,
-          onPressed: onPressed,
-          enabled: enabled,
-          size: size,
-          state: state,
-          width: width,
-          height: height,
-          radius: radius,
-          gap: gap,
-          padding: padding,
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          borderColor: borderColor,
-          borderWidth: borderWidth,
-          fixedWidth: fixedWidth,
-        );
+      width: width,
+      height: height,
+      radius: radius ?? DLButtonTokens.defaultRadius,
+      gap: gap ?? DLButtonTokens.defaultGap,
+      padding: padding ?? DLButtonTokens.padding(size),
 
-      case DLButtonType.tertiary:
-        return buildTertiaryButton(
-          label: label,
-          iconLeft: iconLeft,
-          iconRight: iconRight,
-          onPressed: onPressed,
-          enabled: enabled,
-          size: size,
-          state: state,
-          width: width,
-          height: height,
-          radius: radius,
-          gap: gap,
-          padding: padding,
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          borderColor: borderColor,
-          borderWidth: borderWidth,
-          fixedWidth: fixedWidth,
-        );
-
-      case DLButtonType.ghost:
-        return buildGhostButton(
-          label: label,
-          iconLeft: iconLeft,
-          iconRight: iconRight,
-          onPressed: onPressed,
-          enabled: enabled,
-          size: size,
-          state: state,
-          width: width,
-          height: height,
-          padding: padding,
-          foregroundColor: foregroundColor,
-          fixedWidth: fixedWidth,
-          underlineThickness: underlineThickness,
-          underlineColor: underlineColor,
-        );
-    }
+      fixedWidth: fixedWidth,
+      affordanceTextForIcons: affordanceTextForIcons,
+      plusAffordance: plusAffordance,
+      ellipsisAffordance: ellipsisAffordance,
+    );
   }
 
-  // Specific convenience creators (used by DLButton.* if needed later)
+  // Specific convenience creators (kept for API parity)
   Widget primary({
     String label = 'Button field',
     Widget? iconLeft,
@@ -660,61 +598,6 @@ class _BottomNavFactory {
 ///   onPressed: () {},
 /// );
 /// ```
-Widget DLButton({
-  required DLButtonType type,
-  String label = 'Button field',
-  Widget? iconLeft,
-  Widget? iconRight,
-  VoidCallback? onPressed,
-  bool enabled = true,
-  DLButtonSize size = DLButtonSize.lg,
-  DLButtonState state = DLButtonState.normal,
-  double? width,
-  double? height,
-  double? radius,
-  double? gap,
-  EdgeInsetsGeometry? padding,
-  Color? backgroundColor,
-  Color? foregroundColor,
-  // borders (secondary/tertiary)
-  Color? borderColor,
-  double? borderWidth,
-  // ghost underline
-  double? underlineThickness,
-  Color? underlineColor,
-  // layout
-  bool fixedWidth = false,
-  // primary affordances
-  bool affordanceTextForIcons = false,
-  String plusAffordance = ' +',
-  String ellipsisAffordance = ' …',
-}) {
-  return DynamicLayers.buttons.call(
-    type: type,
-    label: label,
-    iconLeft: iconLeft,
-    iconRight: iconRight,
-    onPressed: onPressed,
-    enabled: enabled,
-    size: size,
-    state: state,
-    width: width,
-    height: height,
-    radius: radius,
-    gap: gap,
-    padding: padding,
-    backgroundColor: backgroundColor,
-    foregroundColor: foregroundColor,
-    borderColor: borderColor,
-    borderWidth: borderWidth,
-    underlineThickness: underlineThickness,
-    underlineColor: underlineColor,
-    fixedWidth: fixedWidth,
-    affordanceTextForIcons: affordanceTextForIcons,
-    plusAffordance: plusAffordance,
-    ellipsisAffordance: ellipsisAffordance,
-  );
-}
 
 class _BottomNavBarFactory {
   const _BottomNavBarFactory._();

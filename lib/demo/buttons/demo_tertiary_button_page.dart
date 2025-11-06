@@ -6,8 +6,6 @@ import '../../dynamiclayers.dart';
 /// ----------------------------------------------------------------------------
 /// Demonstrates:
 /// 1) Sizes (xs, sm, md, lg) × states (normal, hover, pressed, disabled, active)
-/// 2) Icons (left / right / both)
-/// 3) Custom overrides (bg/fg/border)
 ///
 /// Default tertiary spec (from component):
 /// - normal   : bg white,     fg black,   border grey-200 (1.0)
@@ -28,20 +26,10 @@ class DemoTertiaryButtonPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _SectionTitle('1) Sizes × States'),
-            SizedBox(height: 8),
-            _TertiarySizesAndStatesGallery(),
-
-            SizedBox(height: 24),
-            _SectionTitle('2) Icons (Left / Right / Both)'),
-            SizedBox(height: 8),
-            _TertiaryIconsGallery(),
-
-            SizedBox(height: 24),
-            _SectionTitle('3) Custom Overrides (bg/fg/border)'),
-            SizedBox(height: 8),
-            _TertiaryColorsGallery(),
+          children: [
+            _SectionTitle('1) Sizes × States', textStyle: textStyle),
+            const SizedBox(height: 8),
+            const _TertiarySizesAndStatesGallery(),
           ],
         ),
       ),
@@ -109,171 +97,6 @@ class _SizeRow {
   const _SizeRow({required this.size, required this.label});
   final DLButtonSize size;
   final String label;
-}
-
-// -----------------------------------------------------------------------------
-// 2) Icons Gallery
-// -----------------------------------------------------------------------------
-class _TertiaryIconsGallery extends StatelessWidget {
-  const _TertiaryIconsGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _GalleryRow(
-          title: 'Icons — Left',
-          children: [
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Add file',
-              size: DLButtonSize.md,
-              iconLeft: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Add file (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconLeft: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Add file (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconLeft: const Icon(Icons.add),
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Icons — Right',
-          children: [
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Next step',
-              size: DLButtonSize.md,
-              iconRight: const Icon(Icons.chevron_right),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Next step (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconRight: const Icon(Icons.chevron_right),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Next step (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconRight: const Icon(Icons.chevron_right),
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Icons — Both',
-          children: [
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Upload & confirm',
-              size: DLButtonSize.md,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Upload & confirm (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Upload & confirm (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 3) Custom Overrides Gallery
-// -----------------------------------------------------------------------------
-class _TertiaryColorsGallery extends StatelessWidget {
-  const _TertiaryColorsGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _GalleryRow(
-          title: 'Neutral tweaks',
-          children: [
-            // Softer border
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Soft border',
-              size: DLButtonSize.md,
-              borderColor: const Color(0xFFEAEAEA),
-              onPressed: () {},
-            ),
-            // Stronger border
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Strong border',
-              size: DLButtonSize.md,
-              borderColor: Colors.black,
-              borderWidth: 1.5,
-              onPressed: () {},
-            ),
-            // Light grey background with dark text
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Light bg',
-              size: DLButtonSize.md,
-              backgroundColor: const Color(0xFFF6F6F6),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Custom fg/bg',
-          children: [
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Blue outline',
-              size: DLButtonSize.md,
-              state: DLButtonState.active,
-              borderColor: Colors.blue,
-              borderWidth: 1.5,
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.tertiary,
-              label: 'Green text',
-              size: DLButtonSize.md,
-              foregroundColor: Colors.green.shade800,
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
 // -----------------------------------------------------------------------------

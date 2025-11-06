@@ -15,10 +15,7 @@ export 'src/components/dynamic_layers_core.dart';
 // Buttons
 export 'src/components/buttons/dl_button_enums.dart';
 export 'src/components/buttons/dl_button_tokens.dart';
-export 'src/components/buttons/dl_button_primary.dart';
-export 'src/components/buttons/dl_button_secondary.dart';
-export 'src/components/buttons/dl_button_tertiary.dart';
-export 'src/components/buttons/dl_button_ghost.dart';
+export 'src/components/buttons/dl_button.dart';
 
 // Button Dock
 export 'src/components/button_dock/dl_button_dock.dart';

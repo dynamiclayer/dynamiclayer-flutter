@@ -7,8 +7,6 @@ import '../../dynamiclayers.dart'; // or 'dynamiclayers.dart'
 /// ----------------------------------------------------------------------------
 /// Demonstrates:
 /// 1) Sizes (xs, sm, md, lg) × states (normal, hover, pressed, disabled, active)
-/// 2) Icons (left / right / both)
-/// 3) Custom color overrides (bg/fg/border)
 ///
 /// Visual spec (default secondary):
 /// - normal   : bg grey-100,  fg black,   no border
@@ -35,16 +33,6 @@ class DemoSecondaryButtonPage extends StatelessWidget {
             _SectionTitle('1) Sizes × States'),
             SizedBox(height: 8),
             _SecondarySizesAndStatesGallery(),
-
-            SizedBox(height: 24),
-            _SectionTitle('2) Icons (Left / Right / Both)'),
-            SizedBox(height: 8),
-            _SecondaryIconsGallery(),
-
-            SizedBox(height: 24),
-            _SectionTitle('3) Custom Colors (per-call overrides)'),
-            SizedBox(height: 8),
-            _SecondaryColorsGallery(),
           ],
         ),
       ),
@@ -112,173 +100,6 @@ class _SizeRow {
   const _SizeRow({required this.size, required this.label});
   final DLButtonSize size;
   final String label;
-}
-
-// -----------------------------------------------------------------------------
-// 2) Icons Gallery
-// -----------------------------------------------------------------------------
-class _SecondaryIconsGallery extends StatelessWidget {
-  const _SecondaryIconsGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _GalleryRow(
-          title: 'Icons — Left',
-          children: [
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Add',
-              size: DLButtonSize.md,
-              iconLeft: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Add (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconLeft: const Icon(Icons.add),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Add (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconLeft: const Icon(Icons.add),
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Icons — Right',
-          children: [
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Next',
-              size: DLButtonSize.md,
-              iconRight: const Icon(Icons.chevron_right),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Next (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconRight: const Icon(Icons.chevron_right),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Next (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconRight: const Icon(Icons.chevron_right),
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Icons — Both',
-          children: [
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Upload',
-              size: DLButtonSize.md,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Upload (hover)',
-              size: DLButtonSize.md,
-              state: DLButtonState.hover,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Upload (disabled)',
-              size: DLButtonSize.md,
-              state: DLButtonState.disabled,
-              iconLeft: const Icon(Icons.upload),
-              iconRight: const Icon(Icons.check),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 3) Color Overrides Gallery
-// -----------------------------------------------------------------------------
-class _SecondaryColorsGallery extends StatelessWidget {
-  const _SecondaryColorsGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _GalleryRow(
-          title: 'Neutral overrides',
-          children: [
-            // Slightly darker neutral
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Neutral Darker',
-              size: DLButtonSize.md,
-              backgroundColor: const Color(0xFFE2E2E2), // grey-200
-              onPressed: () {},
-            ),
-            // Lightest neutral with dark text
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Neutral Light',
-              size: DLButtonSize.md,
-              backgroundColor: const Color(0xFFF6F6F6), // grey-50
-              foregroundColor: Colors.black,
-              onPressed: () {},
-            ),
-            // Active outline variant via overrides if needed
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Outline',
-              size: DLButtonSize.md,
-              state: DLButtonState.active, // shows default black outline
-              onPressed: () {},
-            ),
-          ],
-        ),
-        _GalleryRow(
-          title: 'Custom borders',
-          children: [
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Blue outline',
-              size: DLButtonSize.md,
-              state: DLButtonState.active,
-              borderColor: Colors.blue,
-              borderWidth: 1.5,
-              onPressed: () {},
-            ),
-            DLButton(
-              type: DLButtonType.secondary,
-              label: 'Red outline',
-              size: DLButtonSize.md,
-              state: DLButtonState.active,
-              borderColor: Colors.red,
-              borderWidth: 2,
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
 // -----------------------------------------------------------------------------

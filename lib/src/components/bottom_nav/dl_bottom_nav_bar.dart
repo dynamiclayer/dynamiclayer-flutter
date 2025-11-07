@@ -85,7 +85,6 @@ class DLBottomNavBar extends StatelessWidget {
               direction: DLSeparatorDirection.horizontal,
               thickness: separatorThickness,
               color: separatorColor,
-              opacity: 1.0,
             ),
 
           // Items row (icon + optional label) – auto height via padding

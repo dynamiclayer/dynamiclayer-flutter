@@ -177,7 +177,6 @@ class _DLAccordionState extends State<DLAccordion>
               direction: DLSeparatorDirection.horizontal,
               thickness: 1.0,
               color: DLColors.grey200,
-              opacity: 1.0,
             ),
           )
         : const SizedBox.shrink();

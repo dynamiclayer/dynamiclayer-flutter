@@ -21,7 +21,6 @@ class DemoSeparatorPage extends StatelessWidget {
               direction: DLSeparatorDirection.horizontal,
               length: 80, // width: 80, height: 0 (visually)
               thickness: 2,
-              opacity: 1,
             ),
           ),
           const SizedBox(height: 32),
@@ -38,7 +37,6 @@ class DemoSeparatorPage extends StatelessWidget {
                 direction: DLSeparatorDirection.vertical,
                 length: 80, // height: 80, width: 0 (visually)
                 thickness: 2,
-                opacity: 1,
               ),
             ),
           ),
@@ -53,7 +51,7 @@ class DemoSeparatorPage extends StatelessWidget {
             direction: DLSeparatorDirection.horizontal,
             length: null, // expands to parent constraints
             thickness: 1,
-            opacity: 1,
+
             margin: const EdgeInsets.symmetric(vertical: 8),
           ),
         ],

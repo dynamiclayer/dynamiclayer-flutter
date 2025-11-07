@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../../dynamiclayers.dart'; // gives access to DLColors.grey200
 
 enum DLSeparatorDirection { horizontal, vertical }
 
-/// The separator widget implementation.
+/// The separator widget implementation (uses solid grey.200 by default).
 class DLSeparator extends StatelessWidget {
   const DLSeparator({
     super.key,
     this.direction = DLSeparatorDirection.horizontal,
     this.length,
     this.thickness = 1.0,
-    this.color,
-    this.opacity = 1.0,
+    this.color, // if null, falls back to DLColors.grey200
     this.radius,
     this.margin,
   });
@@ -19,16 +19,15 @@ class DLSeparator extends StatelessWidget {
   final double? length;
   final double thickness;
   final Color? color;
-  final double opacity;
   final BorderRadiusGeometry? radius;
   final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
     final isH = direction == DLSeparatorDirection.horizontal;
-    final c = (color ?? Theme.of(context).dividerColor).withOpacity(
-      opacity.clamp(0.0, 1.0),
-    );
+
+    // ✅ Always use a solid token color by default (no opacity blending).
+    final c = color ?? DLColors.grey200;
 
     final line = SizedBox(
       width: isH ? (length ?? double.infinity) : thickness,

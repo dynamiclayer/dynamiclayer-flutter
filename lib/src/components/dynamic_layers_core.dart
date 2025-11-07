@@ -316,7 +316,7 @@ class _SeparatorFactory {
       length: length,
       thickness: thickness,
       color: color,
-      opacity: opacity,
+
       radius: radius,
       margin: margin,
     );

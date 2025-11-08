@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import '../dynamiclayers.dart';
+import '../dynamiclayers.dart'; // exposes DLButtonDock, DLDockButton, etc.
 
-/// Demo page showing 3 Button Dock variants:
-/// 1) 1 button, vertical (button fills the provided space)
-/// 2) 2 buttons, horizontal (each takes half width with space between)
-/// 3) 2 buttons, vertical (stacked full width)
 class DemoButtonDockPage extends StatelessWidget {
   const DemoButtonDockPage({super.key});
 
@@ -15,12 +11,12 @@ class DemoButtonDockPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: const [
-          _Section('1) 1 Button — Vertical (fills provided space)'),
+          _Section('1) 1 Button — Vertical (fills width)'),
           SizedBox(height: 8),
           _PreviewBox(child: _OneButtonVertical()),
           SizedBox(height: 24),
 
-          _Section('2) 2 Buttons — Horizontal (split, space between)'),
+          _Section('2) 2 Buttons — Horizontal (split 50/50)'),
           SizedBox(height: 8),
           _PreviewBox(child: _TwoButtonsHorizontal()),
           SizedBox(height: 24),
@@ -35,109 +31,89 @@ class DemoButtonDockPage extends StatelessWidget {
 }
 
 /// ---------------------------------------------------------------------------
-/// Variant 1: 1 button, vertical. The single button fills the available area.
+/// Variant 1: Single button, vertical (full width)
 /// ---------------------------------------------------------------------------
 class _OneButtonVertical extends StatelessWidget {
   const _OneButtonVertical();
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 375,
-      height: 122,
-      child: DynamicLayers.dock(
-        buttons: [
-          DLDockButton(
-            label: 'Button',
-            type: DLButtonType.primary,
-
-            width: double.infinity,
-            onPressed: () {},
-          ),
-        ],
-        direction: Axis.vertical, // single button vertically
-        showHomeIndicator: true,
-        showSeparator: true,
-        width: 375,
-        height: 122,
-        gap: 0,
-        padding: EdgeInsets.all(10),
-      ),
+    return DLButtonDock(
+      buttons: [
+        DlButtonDock(
+          label: 'Button',
+          type: DLButtonType.primary,
+          onPressed: () {},
+          width: double.infinity,
+        ),
+      ],
+      direction: Axis.vertical,
+      gap: 0,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      showSeparator: true, // uses DLSeparator internally
+      showHomeIndicator: false, // iOS bar is NOT part of the component
     );
   }
 }
 
 /// ---------------------------------------------------------------------------
-/// Variant 2: 2 buttons, horizontal. Each takes half space with a gap.
+/// Variant 2: Two buttons, horizontal (split 50/50 with gap)
 /// ---------------------------------------------------------------------------
 class _TwoButtonsHorizontal extends StatelessWidget {
   const _TwoButtonsHorizontal();
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 375,
-      height: 122,
-      child: DynamicLayers.dock(
-        buttons: [
-          DLDockButton(
-            label: 'Button',
-            type: DLButtonType.secondary,
-            onPressed: () {},
-          ),
-          DLDockButton(
-            label: 'Button',
-            type: DLButtonType.primary,
-            onPressed: () {},
-          ),
-        ],
-        direction: Axis.horizontal, // split equally
-        showHomeIndicator: true,
-        showSeparator: true,
-        width: 375,
-        height: 122,
-        gap: 12, // space between the two buttons
-        padding: EdgeInsets.zero,
-      ),
+    return DLButtonDock(
+      buttons: [
+        DlButtonDock(
+          label: 'Button',
+          type: DLButtonType.secondary,
+          onPressed: () {},
+        ),
+        DlButtonDock(
+          label: 'Button',
+          type: DLButtonType.primary,
+          onPressed: () {},
+        ),
+      ],
+      direction: Axis.horizontal,
+      gap: 12, // space between the two buttons
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      showSeparator: true,
+      showHomeIndicator: false,
     );
   }
 }
 
 /// ---------------------------------------------------------------------------
-/// Variant 3: 2 buttons, vertical full-width stacked.
+/// Variant 3: Two buttons, vertical (stacked full width)
 /// ---------------------------------------------------------------------------
 class _TwoButtonsVertical extends StatelessWidget {
   const _TwoButtonsVertical();
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 375,
-      height: 122 * 2 / 1.4, // a bit taller to show two stacked buttons nicely
-      child: DynamicLayers.dock(
-        buttons: [
-          DLDockButton(
-            label: 'Button',
-            type: DLButtonType.primary,
-            width: double.infinity,
-            onPressed: () {},
-          ),
-          DLDockButton(
-            label: 'Button',
-            type: DLButtonType.secondary,
-            width: double.infinity,
-            onPressed: () {},
-          ),
-        ],
-        direction: Axis.vertical, // stacked one above the other
-        showHomeIndicator: true,
-        showSeparator: true,
-
-        width: 375,
-        height: 122 * 2 / 1.4,
-        gap: 12, // vertical spacing between the stacked buttons
-        padding: EdgeInsets.all(10),
-      ),
+    return DLButtonDock(
+      buttons: [
+        DlButtonDock(
+          label: 'Button',
+          type: DLButtonType.primary,
+          onPressed: () {},
+          width: double.infinity,
+        ),
+        DlButtonDock(
+          label: 'Button',
+          type: DLButtonType.secondary,
+          onPressed: () {},
+          width: double.infinity,
+        ),
+      ],
+      direction: Axis.vertical,
+      gap: 12, // vertical spacing between stacked buttons
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      showSeparator: true,
+      showHomeIndicator: false,
     );
   }
 }
@@ -170,9 +146,7 @@ class _PreviewBox extends StatelessWidget {
         border: Border.all(color: Colors.black12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Center(
-        child: Padding(padding: const EdgeInsets.all(12), child: child),
-      ),
+      child: Padding(padding: const EdgeInsets.all(12), child: child),
     );
   }
 }

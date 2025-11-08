@@ -315,7 +315,7 @@ class _DockFactory {
   const _DockFactory._();
 
   Widget call({
-    required List<DLDockButton> buttons,
+    required List<DlButtonDock> buttons,
 
     // Layout
     Axis direction = Axis.vertical,
@@ -345,13 +345,11 @@ class _DockFactory {
       direction: direction,
       gap: gap,
       padding: padding,
-      width: width,
-      height: height,
+
       maxContentWidth: maxContentWidth,
       backgroundColor: backgroundColor,
       showSeparator: showSeparator,
-      separatorColor: separatorColor,
-      separatorThickness: separatorThickness,
+
       showHomeIndicator: showHomeIndicator,
       homeIndicatorColor: homeIndicatorColor,
       homeIndicatorWidth: homeIndicatorWidth,
@@ -783,7 +781,7 @@ class _BottomNavBarFactory {
 /// );
 /// ```
 Widget DLDock({
-  required List<DLDockButton> buttons,
+  required List<DlButtonDock> buttons,
   Axis direction = Axis.vertical,
   double gap = 0,
   EdgeInsetsGeometry padding = EdgeInsets.zero,
@@ -826,7 +824,7 @@ Widget DLDock({
 
 /// Uppercase alias if you prefer `DLDOCK(...)`.
 Widget DLDOCK({
-  required List<DLDockButton> buttons,
+  required List<DlButtonDock> buttons,
   Axis direction = Axis.vertical,
   double gap = 0,
   EdgeInsetsGeometry padding = EdgeInsets.zero,

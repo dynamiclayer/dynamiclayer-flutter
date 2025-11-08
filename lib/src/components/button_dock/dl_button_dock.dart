@@ -1,11 +1,10 @@
-// dynamiclayers.dart
+// dl_button_dock.dart
 import 'package:flutter/material.dart';
-
-import '../../../dynamiclayers.dart';
+import '../../../dynamiclayers.dart'; // DLSeparator & DynamicLayers.buttons
 
 /// Public spec for a single button inside the dock.
-class DLDockButton {
-  DLDockButton({
+class DlButtonDock {
+  DlButtonDock({
     required this.label,
     required this.type,
     required this.onPressed,
@@ -44,53 +43,52 @@ class DLDockButton {
   final bool fixedWidth;
 }
 
-/// -------------------- Implementation --------------------
-
+/// Button Dock
 class DLButtonDock extends StatelessWidget {
   const DLButtonDock({
     super.key,
-
     required this.buttons,
 
     // Layout
     this.direction = Axis.vertical,
-    this.gap = 0,
-    this.padding = EdgeInsets.zero,
-    this.width,
-    this.height = 122,
+    this.gap = 12,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     this.maxContentWidth = 600,
 
     // Chrome
     this.backgroundColor = Colors.white,
-    this.showSeparator = true,
-    this.separatorColor = const Color(0x1F000000),
-    this.separatorThickness = 1.0,
-    this.showHomeIndicator = true,
+    this.elevation = 8.0,
+
+    // Separator
+    this.showSeparator = false, // uses DLSeparator when true
+    this.separatorInset = EdgeInsets.zero, // full-bleed by default
+    this.separatorFullBleed = true, // span entire dock width
+    // iOS home indicator (disabled by default)
+    this.showHomeIndicator = false,
     this.homeIndicatorColor = Colors.black,
     this.homeIndicatorWidth = 120,
     this.homeIndicatorHeight = 4,
     this.homeIndicatorRadius = 999,
-    this.elevation = 8.0,
 
     // SafeArea
     this.useSafeArea = true,
   });
 
-  final List<DLDockButton> buttons;
+  final List<DlButtonDock> buttons;
   final Axis direction;
   final double gap;
   final EdgeInsetsGeometry padding;
-  final double? width;
-  final double? height;
   final double maxContentWidth;
 
   final Color backgroundColor;
   final double elevation;
 
+  // Separator
   final bool showSeparator;
-  final Color separatorColor;
-  final double separatorThickness;
+  final EdgeInsetsGeometry separatorInset;
+  final bool separatorFullBleed;
 
+  // Home indicator (iOS)
   final bool showHomeIndicator;
   final Color homeIndicatorColor;
   final double homeIndicatorWidth;
@@ -101,62 +99,70 @@ class DLButtonDock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final panel = ConstrainedBox(
-      constraints: BoxConstraints.tightFor(
-        width: width ?? double.infinity,
-        height: height,
-      ),
-      child: Material(
-        color: backgroundColor,
-        elevation: elevation,
-        shadowColor: Colors.black.withOpacity(0.12),
-        child: SafeArea(
-          top: false,
-          left: useSafeArea,
-          right: useSafeArea,
-          bottom: useSafeArea,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (showSeparator)
-                Divider(
-                  height: 1,
-                  thickness: separatorThickness,
-                  color: separatorColor,
-                ),
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: padding,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxContentWidth),
-                      child: direction == Axis.horizontal
-                          ? _row(buttons, gap)
-                          : _column(buttons, gap),
-                    ),
-                  ),
+    return Material(
+      color: backgroundColor,
+      elevation: elevation,
+      shadowColor: Colors.black.withOpacity(0.12),
+      child: SafeArea(
+        top: false,
+        left: useSafeArea,
+        right: useSafeArea,
+        bottom: useSafeArea,
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // intrinsic height, no overflow
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (showSeparator)
+              Padding(
+                padding: separatorInset,
+                // Full-bleed separator, not constrained by maxContentWidth
+                child: separatorFullBleed
+                    ? const SizedBox(
+                        width: double.infinity,
+                        child: DLSeparator(),
+                      )
+                    : Align(
+                        alignment: Alignment.center,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: const DLSeparator(),
+                        ),
+                      ),
+              ),
+
+            // Buttons area (constrained to maxContentWidth and with padding)
+            Padding(
+              padding: padding,
+              child: Align(
+                alignment: Alignment.center,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxContentWidth),
+                  child: direction == Axis.horizontal
+                      ? _row(buttons, gap)
+                      : _column(buttons, gap),
                 ),
               ),
-              if (showHomeIndicator) ...[
-                const SizedBox(height: 4),
-                _HomeIndicator(
-                  color: homeIndicatorColor,
-                  width: homeIndicatorWidth,
-                  height: homeIndicatorHeight,
-                  radius: homeIndicatorRadius,
-                ),
-                const SizedBox(height: 6),
-              ],
+            ),
+
+            if (showHomeIndicator) ...[
+              const SizedBox(height: 4),
+              _HomeIndicator(
+                color: homeIndicatorColor,
+                width: homeIndicatorWidth,
+                height: homeIndicatorHeight,
+                radius: homeIndicatorRadius,
+              ),
+              const SizedBox(height: 6),
             ],
-          ),
+          ],
         ),
       ),
     );
-
-    return panel; // use in bottomNavigationBar or inside a Stack bottom.
   }
 
-  Widget _row(List<DLDockButton> items, double gap) {
+  Widget _row(List<DlButtonDock> items, double gap) {
     final children = <Widget>[];
     for (var i = 0; i < items.length; i++) {
       children.add(Expanded(child: _dockButton(items[i])));
@@ -165,7 +171,7 @@ class DLButtonDock extends StatelessWidget {
     return Row(children: children);
   }
 
-  Widget _column(List<DLDockButton> items, double gap) {
+  Widget _column(List<DlButtonDock> items, double gap) {
     final children = <Widget>[];
     for (var i = 0; i < items.length; i++) {
       children.add(_dockButton(items[i]));
@@ -174,7 +180,7 @@ class DLButtonDock extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.min, children: children);
   }
 
-  Widget _dockButton(DLDockButton b) {
+  Widget _dockButton(DlButtonDock b) {
     return DynamicLayers.buttons(
       type: b.type,
       label: b.label,
@@ -211,12 +217,14 @@ class _HomeIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(radius),
+    return Center(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(radius),
+        ),
       ),
     );
   }

@@ -2,6 +2,12 @@
 class Assets {
   Assets._();
 
+  static const String alertsAlertTriangleFilled =
+      'assets/alerts/alert_triangle_filled.png';
+  static const String alertsCircleAlert = 'assets/alerts/circle_alert.png';
+  static const String alertsCircleCheck = 'assets/alerts/circle_check.png';
+  static const String alertsCircleX = 'assets/alerts/circle_x.png';
+  static const String alertsInfo = 'assets/alerts/info.png';
   static const String iconLogo = 'assets/icon/logo.png';
   static const String iconMemoji = 'assets/icon/memoji.png';
 }

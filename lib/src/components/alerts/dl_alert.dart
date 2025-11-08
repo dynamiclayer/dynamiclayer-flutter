@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart';
+import '../../../generated/assets.dart';
 
-/// ---------------------------------------------------------------------------
-/// 🧩 DynamicLayers – Alert (tokenized + overlay helper)
-/// ---------------------------------------------------------------------------
-/// Defaults now use tokens:
-/// • Size: 343×108
-/// • Padding: DLSpacing.p16
-/// • Corners: DLRadii.lg
-/// • Border: DLBorderWidth.w1 + DLColors.grey200
-/// • Typography: DLTypos
-/// • Gaps/sizes use DLSpacing where possible (p12, p28, etc.)
-/// Everything is still overridable via parameters.
-/// ---------------------------------------------------------------------------
 enum DLAlertType { error, success, warning, info }
 
 class DLAlert extends StatelessWidget {
@@ -22,48 +11,54 @@ class DLAlert extends StatelessWidget {
     this.title = 'Headline',
     this.description =
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
-    this.showClose = true,
+
+    // close control (new API)
+    this.close = true,
+    @Deprecated('Use `close` instead') this.showClose,
     this.onClose,
+
     this.leading,
 
-    // Card layout
+    // Card layout (Figma defaults)
     this.width = 343,
-    this.height = 108,
+    this.height = 108, // now treated as MIN height to avoid overflow
     this.radius = DLRadii.lg,
     this.borderColor = DLColors.grey200,
     this.borderWidth = DLBorderWidth.w1,
     this.backgroundColor = DLColors.white,
 
-    // Typography overrides
+    // Typography overrides (Inter / size3 / line-height3 / letter-spacing7)
     this.titleStyle,
     this.descriptionStyle,
 
-    // Tokenized chrome & layout overrides
-    this.horizontalPadding = DLSpacing.p16,
-    this.verticalPadding = DLSpacing.p16,
-    this.cornerGap = DLSpacing.p12,
-    this.titleDescriptionGap = DLSpacing.p8,
+    // Spacing tokens
+    this.horizontalPadding = DLSpacing.p16, // 16
+    this.verticalPadding = DLSpacing.p16, // 16
+    this.iconTextGap = DLSpacing.p16, // 16 between badge and text
+    this.titleDescriptionGap = DLSpacing.p8, // 8 between title and message
+    // Fixed icon sizes per Figma
+    this.badgeIconSize = 24,
+    this.closeIconSize = 24,
 
-    // Badge & close sizes (use spacing tokens where possible)
-    this.badgeSize = DLSpacing.p28, // 28
-    this.badgeIconSize = 16,
-    this.closeSize = DLSpacing.p28, // 28
-    this.closeIconSize = 14,
-
-    // Optional shadow (off by default)
+    // Optional shadow
     this.shadow,
   });
 
   final DLAlertType type;
   final String title;
   final String description;
-  final bool showClose;
-  final VoidCallback? onClose;
 
+  /// New API — whether to show the close button.
+  final bool close;
+
+  /// Legacy flag (if supplied, overrides [close])
+  final bool? showClose;
+
+  final VoidCallback? onClose;
   final Widget? leading;
 
   final double width;
-  final double height;
+  final double height; // acts as minHeight
   final double radius;
   final Color borderColor;
   final double borderWidth;
@@ -72,197 +67,170 @@ class DLAlert extends StatelessWidget {
   final TextStyle? titleStyle;
   final TextStyle? descriptionStyle;
 
-  // Tokens / spacing
+  // Spacing
   final double horizontalPadding;
   final double verticalPadding;
-  final double cornerGap;
+  final double iconTextGap;
   final double titleDescriptionGap;
 
-  // Badge / close controls
-  final double badgeSize;
-  final double badgeIconSize;
-  final double closeSize;
-  final double closeIconSize;
+  // Icons
+  final double badgeIconSize; // 24
+  final double closeIconSize; // 24
 
-  // Shadow
   final List<BoxShadow>? shadow;
+
+  static const double _closeHitSize = 24; // 24 icon + 16 + 16 padding
+  bool get _shouldShowClose => showClose ?? close;
+
+  // Inter defaults for your tokens (override if you pipe in DLTypos)
+  TextStyle get _defaultTitle =>
+      (titleStyle ??
+      const TextStyle(
+        fontFamily: 'Inter',
+        fontWeight: FontWeight.w600, // Semi Bold
+        fontSize: 16, // font/size/3
+        height: 24 / 16, // font/line-height/3
+        letterSpacing: 0.0, // font/letter-spacing/7
+        color: DLColors.black,
+      ));
+
+  TextStyle get _defaultDesc =>
+      (descriptionStyle ??
+      const TextStyle(
+        fontFamily: 'Inter',
+        fontWeight: FontWeight.w400, // Regular
+        fontSize: 16, // font/size/3
+        height: 24 / 16,
+        letterSpacing: 0.0,
+        color: DLColors.grey700,
+      ));
 
   @override
   Widget build(BuildContext context) {
-    final (defaultBadge, _) = _buildBadge(badgeSize, badgeIconSize);
-
-    final titleTextStyle =
-        titleStyle ?? DLTypos.textBaseBold(color: DLColors.black);
-    final descTextStyle =
-        descriptionStyle ?? DLTypos.textSmRegular(color: DLColors.grey700);
-
-    // Keep text clear of top-left badge and top-right close
-    final leftInset = horizontalPadding + badgeSize + cornerGap;
-    final rightInset =
-        horizontalPadding + (showClose ? closeSize + cornerGap : 0);
+    final double leftIndent = badgeIconSize + iconTextGap;
 
     return Container(
       width: width,
-      height: height,
+      constraints: BoxConstraints(minHeight: height),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(color: borderColor, width: borderWidth),
         boxShadow: shadow,
       ),
-      child: Stack(
-        children: [
-          // Top-left badge
-          Positioned(
-            top: verticalPadding,
-            left: horizontalPadding,
-            child: leading ?? defaultBadge,
-          ),
-
-          // Top-right close
-          if (showClose)
-            Positioned(
-              top: verticalPadding,
-              right: horizontalPadding,
-              child: InkWell(
-                onTap: onClose,
-                customBorder: const CircleBorder(),
-                child: Container(
-                  width: closeSize,
-                  height: closeSize,
-                  decoration: const BoxDecoration(
-                    color: DLColors.black,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.close,
-                    size: closeIconSize,
-                    color: DLColors.white,
-                  ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Row 1: Icon + Headline + Close ────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: badgeIconSize,
+                  height: badgeIconSize,
+                  child: leading ?? _buildBadgeIcon(type, badgeIconSize),
                 ),
-              ),
-            ),
-
-          // Text block — padded between the two top icons
-          Positioned.fill(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                leftInset,
-                verticalPadding,
-                rightInset,
-                verticalPadding,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
+                SizedBox(width: iconTextGap),
+                // Headline centered with icon
+                Expanded(
+                  child: Text(
                     title,
-                    style: titleTextStyle,
+                    style: _defaultTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: titleDescriptionGap),
-                  Text(
-                    description,
-                    style: descTextStyle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                ),
+                if (_shouldShowClose) ...[
+                  SizedBox(width: iconTextGap),
+                  _CloseButton(
+                    size: _closeHitSize,
+                    iconSize: closeIconSize,
+                    onTap: onClose,
                   ),
                 ],
-              ),
+              ],
             ),
-          ),
-        ],
+
+            // ── Row 2: Indented full message (no ellipsis) ────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // indent so message aligns with headline start
+                SizedBox(width: leftIndent),
+                // message wraps fully
+                Expanded(
+                  child: Text(
+                    description,
+                    style: _defaultDesc,
+                    softWrap: true,
+                    // no truncation:
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Returns (badgeWidget, accentColor)
-  (Widget, Color) _buildBadge(double size, double iconSize) {
+  // Figma PNGs
+  Widget _buildBadgeIcon(DLAlertType type, double size) {
     switch (type) {
       case DLAlertType.error:
-        return (
-          Container(
-            width: size,
-            height: size,
-            decoration: const BoxDecoration(
-              color: DLColors.red500,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.priority_high,
-              size: iconSize,
-              color: DLColors.white,
-            ),
-          ),
-          DLColors.red500,
+        return Image.asset(
+          Assets.alertsCircleAlert,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
         );
       case DLAlertType.success:
-        return (
-          Container(
-            width: size,
-            height: size,
-            decoration: const BoxDecoration(
-              color: DLColors.green500,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(Icons.check, size: iconSize, color: DLColors.white),
-          ),
-          DLColors.green500,
+        return Image.asset(
+          Assets.alertsCircleCheck,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
         );
       case DLAlertType.warning:
-        return (
-          SizedBox(
-            width: size,
-            height: size,
-            child: Center(
-              child: Icon(
-                Icons.warning_amber_rounded,
-                size: size * 0.78,
-                color: DLColors.yellow500,
-              ),
-            ),
-          ),
-          DLColors.yellow500,
+        return Image.asset(
+          Assets.alertsAlertTriangleFilled,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
         );
       case DLAlertType.info:
-        return (
-          Container(
-            width: size,
-            height: size,
-            decoration: const BoxDecoration(
-              color: DLColors.violet500,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(Icons.info, size: iconSize, color: DLColors.white),
-          ),
-          DLColors.violet500,
+        return Image.asset(
+          Assets.alertsInfo,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
         );
     }
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // Overlay "snackbar" helper
-  // ───────────────────────────────────────────────────────────────────────────
-
-  /// Shows an animated alert overlay and returns the created OverlayEntry.
-  /// Uses an internal stateful host to obtain a TickerProvider safely.
+  // ── Overlay helper (unchanged; still uses `close`)
   static OverlayEntry show(
     BuildContext context, {
     DLAlertType type = DLAlertType.error,
     String title = 'Headline',
     String description =
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
-    bool showClose = true,
+    bool close = true,
+    @Deprecated('Use `close` instead') bool? showClose,
     VoidCallback? onClose,
     Widget? leading,
 
-    // Card layout
     double width = 343,
     double height = 108,
     double radius = DLRadii.lg,
@@ -270,22 +238,16 @@ class DLAlert extends StatelessWidget {
     double borderWidth = DLBorderWidth.w1,
     Color backgroundColor = DLColors.white,
 
-    // Tokenized chrome & layout
     double horizontalPadding = DLSpacing.p16,
     double verticalPadding = DLSpacing.p16,
-    double cornerGap = DLSpacing.p12,
+    double iconTextGap = DLSpacing.p16,
     double titleDescriptionGap = DLSpacing.p8,
 
-    // Badge & close sizing
-    double badgeSize = DLSpacing.p28,
-    double badgeIconSize = 16,
-    double closeSize = DLSpacing.p28,
-    double closeIconSize = 14,
+    double badgeIconSize = 24,
+    double closeIconSize = 24,
 
-    // Shadow
     List<BoxShadow>? shadow,
 
-    // Overlay presentation
     Alignment alignment = Alignment.bottomCenter,
     EdgeInsets margin = const EdgeInsets.fromLTRB(16, 0, 16, 24),
     Duration duration = const Duration(milliseconds: 2400),
@@ -296,7 +258,7 @@ class DLAlert extends StatelessWidget {
       type: type,
       title: title,
       description: description,
-      showClose: showClose,
+      close: showClose ?? close,
       onClose: onClose,
       leading: leading,
       width: width,
@@ -307,11 +269,9 @@ class DLAlert extends StatelessWidget {
       backgroundColor: backgroundColor,
       horizontalPadding: horizontalPadding,
       verticalPadding: verticalPadding,
-      cornerGap: cornerGap,
+      iconTextGap: iconTextGap,
       titleDescriptionGap: titleDescriptionGap,
-      badgeSize: badgeSize,
       badgeIconSize: badgeIconSize,
-      closeSize: closeSize,
       closeIconSize: closeIconSize,
       shadow: shadow,
     );
@@ -340,9 +300,7 @@ class DLAlert extends StatelessWidget {
     late OverlayEntry entry;
 
     void remove() {
-      if (entry.mounted) {
-        entry.remove();
-      }
+      if (entry.mounted) entry.remove();
     }
 
     entry = OverlayEntry(
@@ -367,12 +325,11 @@ class DLAlert extends StatelessWidget {
     return entry;
   }
 
-  // Internal: copy with new onClose (kept for parity; not used in the host)
   DLAlert _copyWith({VoidCallback? onClose}) => DLAlert(
     type: type,
     title: title,
     description: description,
-    showClose: showClose,
+    close: _shouldShowClose,
     onClose: onClose ?? this.onClose,
     leading: leading,
     width: width,
@@ -385,17 +342,48 @@ class DLAlert extends StatelessWidget {
     descriptionStyle: descriptionStyle,
     horizontalPadding: horizontalPadding,
     verticalPadding: verticalPadding,
-    cornerGap: cornerGap,
+    iconTextGap: iconTextGap,
     titleDescriptionGap: titleDescriptionGap,
-    badgeSize: badgeSize,
     badgeIconSize: badgeIconSize,
-    closeSize: closeSize,
     closeIconSize: closeIconSize,
     shadow: shadow,
   );
 }
 
-/// Internal host that provides a TickerProvider for the overlay animation.
+/// Close button with exact 56×56 hit area and a 24px Figma PNG centered.
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.size, required this.iconSize, this.onTap});
+
+  final double size; // 56
+  final double iconSize; // 24
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Center(
+            child: Image.asset(
+              Assets.alertsCircleX,
+              width: iconSize,
+              height: iconSize,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DLAlertOverlayHost extends StatefulWidget {
   const _DLAlertOverlayHost({
     required this.alert,
@@ -449,7 +437,6 @@ class _DLAlertOverlayHostState extends State<_DLAlertOverlayHost>
 
   @override
   Widget build(BuildContext context) {
-    // Make the card close itself when the close button is tapped
     final closable = widget.alert._copyWith(
       onClose: () {
         widget.alert.onClose?.call();

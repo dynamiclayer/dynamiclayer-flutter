@@ -92,4 +92,5 @@ flutter:
     - assets/
     - assets/icon/
     - assets/alerts/
+    - assets/bottomSheet/
 

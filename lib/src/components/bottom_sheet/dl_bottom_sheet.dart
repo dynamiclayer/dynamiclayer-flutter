@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart';
+import '../../../generated/assets.dart';
 
 enum DLBottomSheetType { defaultType, singleButton, doubleButton }
 
@@ -8,12 +9,11 @@ class DLBottomSheet extends StatelessWidget {
     super.key,
     this.type = DLBottomSheetType.defaultType,
 
-    // Chrome
+    // Header
     this.showClose = true,
-    this.showHomeIndicator = true,
+    this.title = 'Title',
 
     // Content toggles + text
-    this.title = 'Title',
     this.showHeadline = true,
     this.headlineText = 'Headline',
     this.showDescription = true,
@@ -40,12 +40,11 @@ class DLBottomSheet extends StatelessWidget {
   // Variant
   final DLBottomSheetType type;
 
-  // Chrome
+  // Header
   final bool showClose;
-  final bool showHomeIndicator;
+  final String title;
 
   // Content
-  final String title;
   final bool showHeadline;
   final String headlineText;
   final bool showDescription;
@@ -67,20 +66,16 @@ class DLBottomSheet extends StatelessWidget {
   final double maxContentWidth;
   final EdgeInsetsGeometry? padding;
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Show helper
-  // ──────────────────────────────────────────────────────────────────────────
   static Future<T?> show<T>(
     BuildContext context, {
     Key? key,
     DLBottomSheetType type = DLBottomSheetType.defaultType,
 
-    // Chrome
+    // Header
     bool showClose = true,
-    bool showHomeIndicator = true,
+    String title = 'Title',
 
     // Content toggles + text
-    String title = 'Title',
     bool showHeadline = true,
     String headlineText = 'Headline',
     bool showDescription = true,
@@ -102,7 +97,7 @@ class DLBottomSheet extends StatelessWidget {
     // Layout
     double maxContentWidth = 600,
     EdgeInsetsGeometry? padding,
-    bool isScrollControlled = true, // keep default true; still content-sized
+    bool isScrollControlled = true,
     bool useSafeArea = true,
     Color barrierColor = const Color(0x99000000),
   }) {
@@ -116,7 +111,6 @@ class DLBottomSheet extends StatelessWidget {
         key: key,
         type: type,
         showClose: showClose,
-        showHomeIndicator: showHomeIndicator,
         title: title,
         showHeadline: showHeadline,
         headlineText: headlineText,
@@ -139,30 +133,35 @@ class DLBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = _buildSheetContent(context);
 
-    // ⬇️ Use bottom:false to avoid extra white space; we draw our own indicator.
     return Material(
       color: Colors.transparent,
       child: SafeArea(
         top: false,
-        bottom: false,
+        bottom: false, // no bottom safe-area padding strip
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
+          // keep only keyboard inset; no extra bottom padding
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          // ⬇️ Wrap makes the modal bottom sheet height = intrinsic content
           child: Wrap(
             children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: DLColors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(DLRadii.x3l),
-                    topRight: Radius.circular(DLRadii.x3l),
-                  ),
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(DLRadii.x3l),
+                  topRight: Radius.circular(DLRadii.x3l),
                 ),
-                child: content,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: DLColors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(DLRadii.x3l),
+                      topRight: Radius.circular(DLRadii.x3l),
+                    ),
+                  ),
+                  child: content,
+                ),
               ),
             ],
           ),
@@ -172,9 +171,6 @@ class DLBottomSheet extends StatelessWidget {
   }
 
   Widget _buildSheetContent(BuildContext context) {
-    final horizontal =
-        padding ?? DLSpacing.symmetric(h: DLSpacing.p24, v: DLSpacing.p24);
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final inner = ConstrainedBox(
@@ -182,7 +178,6 @@ class DLBottomSheet extends StatelessWidget {
           child: _Body(
             type: type,
             showClose: showClose,
-            showHomeIndicator: showHomeIndicator,
             title: title,
             showHeadline: showHeadline,
             headlineText: headlineText,
@@ -198,8 +193,7 @@ class DLBottomSheet extends StatelessWidget {
           ),
         );
 
-        // No Align tricks — just padding around intrinsic content.
-        return Padding(padding: horizontal, child: inner);
+        return inner;
       },
     );
   }
@@ -209,7 +203,6 @@ class _Body extends StatelessWidget {
   const _Body({
     required this.type,
     required this.showClose,
-    required this.showHomeIndicator,
     required this.title,
     required this.showHeadline,
     required this.headlineText,
@@ -226,7 +219,6 @@ class _Body extends StatelessWidget {
 
   final DLBottomSheetType type;
   final bool showClose;
-  final bool showHomeIndicator;
 
   final String title;
   final bool showHeadline;
@@ -244,96 +236,110 @@ class _Body extends StatelessWidget {
   final VoidCallback? onSecondaryPressed;
   final DLButtonType secondaryType;
 
+  static const _contentHPad = 32.0;
+
   @override
   Widget build(BuildContext context) {
-    // Sheet can grow up to 90% height; otherwise stays content-sized.
     final maxH = MediaQuery.of(context).size.height * 0.9;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Header (Title centered, close top-right)
-        Row(
-          children: [
-            const SizedBox(width: 24),
-            Expanded(
-              child: Align(
+        // Header (dynamic height; no fixed SizedBox)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Stack(
+            children: [
+              // Title center-aligned, with side paddings so it won't collide with the close button.
+              Align(
                 alignment: Alignment.center,
-                child: Text(
-                  title,
-                  style: DLTypos.textSmMedium(color: DLColors.black),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 56.0),
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: DLTypos.textXlSemibold(
+                      color: DLColors.black,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
-            ),
-            if (showClose)
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                splashRadius: 22,
-                icon: const Icon(Icons.close, size: 20, color: DLColors.black),
-                onPressed: () => Navigator.of(context).maybePop(),
-              )
-            else
-              const SizedBox(width: 24),
-          ],
+              if (showClose)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: SizedBox(
+                    // keep a good tap target without fixing the whole header height
+                    width: 48,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => Navigator.of(context).maybePop(),
+                        child: Center(
+                          child: Image.asset(
+                            Assets.bottomSheetX,
+                            width: 24,
+                            height: 24,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
 
-        const SizedBox(height: 8),
-
-        // Content stays intrinsic; only scrolls if exceeding 90% of screen.
+        // Middle content
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxH),
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.zero,
-            child: Padding(
-              padding: DLSpacing.symmetric(h: 4, v: 12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  illustration ??
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: DLColors.grey200,
-                          borderRadius: DLRadii.brMd,
-                        ),
+            padding: const EdgeInsets.symmetric(horizontal: _contentHPad),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 24),
+                illustration ??
+                    SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: Image.asset(
+                        Assets.bottomSheetBadgeGold,
+                        fit: BoxFit.contain,
                       ),
-                  const SizedBox(height: 16),
-                  if (showHeadline)
-                    Text(
-                      headlineText,
-                      textAlign: TextAlign.center,
-                      style: DLTypos.textLgBold(color: DLColors.black),
                     ),
-                  if (showDescription) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      descriptionText,
-                      textAlign: TextAlign.center,
-                      style: DLTypos.textSmRegular(color: DLColors.grey600),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                  _buildButtons(),
+                const SizedBox(height: 24),
+                if (showHeadline)
+                  Text(
+                    headlineText,
+                    textAlign: TextAlign.center,
+                    style: DLTypos.textLgBold(color: DLColors.black),
+                  ),
+                if (showDescription) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    descriptionText,
+                    textAlign: TextAlign.center,
+                    style: DLTypos.textSmRegular(color: DLColors.grey600),
+                  ),
                 ],
-              ),
+                const SizedBox(height: 24),
+              ],
             ),
           ),
         ),
 
-        if (showHomeIndicator) ...[
-          const SizedBox(height: 8),
-          Container(
-            width: 120,
-            height: 4,
-            decoration: BoxDecoration(
-              color: DLColors.black,
-              borderRadius: DLRadii.brFull,
-            ),
+        // Buttons (separator removed; height adapts to content)
+        if (type != DLBottomSheetType.defaultType)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: _buildButtons(),
           ),
-          const SizedBox(height: 8),
-        ],
       ],
     );
   }
@@ -344,17 +350,13 @@ class _Body extends StatelessWidget {
         return const SizedBox.shrink();
 
       case DLBottomSheetType.singleButton:
-        return Column(
-          children: [
-            DLButton(
-              type: primaryType,
-              label: primaryLabel,
-              size: DLButtonSize.lg,
-              onPressed: onPrimaryPressed,
-              width: double.infinity,
-              fixedWidth: true,
-            ),
-          ],
+        return DLButton(
+          type: primaryType,
+          label: primaryLabel,
+          size: DLButtonSize.lg,
+          onPressed: onPrimaryPressed,
+          width: double.infinity,
+          fixedWidth: true,
         );
 
       case DLBottomSheetType.doubleButton:
@@ -368,7 +370,7 @@ class _Body extends StatelessWidget {
               width: double.infinity,
               fixedWidth: true,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             DLButton(
               type: secondaryType,
               label: secondaryLabel,

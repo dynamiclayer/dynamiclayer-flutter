@@ -8,6 +8,9 @@ class Assets {
   static const String alertsCircleCheck = 'assets/alerts/circle_check.png';
   static const String alertsCircleX = 'assets/alerts/circle_x.png';
   static const String alertsInfo = 'assets/alerts/info.png';
+  static const String bottomSheetBadgeGold =
+      'assets/bottomSheet/badge-gold.png';
+  static const String bottomSheetX = 'assets/bottomSheet/x.png';
   static const String iconLogo = 'assets/icon/logo.png';
   static const String iconMemoji = 'assets/icon/memoji.png';
 }

@@ -161,7 +161,10 @@ class DLBottomNavTab extends StatelessWidget {
         onTap: onTap,
         customBorder: const CircleBorder(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: DLSpacing.p16,
+            vertical: 0,
+          ),
           child: content,
         ),
       ),

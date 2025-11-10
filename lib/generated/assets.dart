@@ -8,6 +8,9 @@ class Assets {
   static const String alertsCircleCheck = 'assets/alerts/circle_check.png';
   static const String alertsCircleX = 'assets/alerts/circle_x.png';
   static const String alertsInfo = 'assets/alerts/info.png';
+  static const String avatarAvatar = 'assets/avatar/avatar.png';
+  static const String avatarAvatar1 = 'assets/avatar/avatar1.png';
+  static const String avatarUser = 'assets/avatar/user.svg';
   static const String bottomNavigationSelected =
       'assets/bottomNavigation/selected.svg';
   static const String bottomNavigationUnselected =

@@ -516,7 +516,7 @@ class _AvatarGroupFactory {
   const _AvatarGroupFactory._();
 
   Widget call({
-    required DLAvatarSize size,
+    required DLAvatarGroupSize size,
     required List<DLAvatarItem> items,
     int maxVisible = 2,
     int? overflowCount,
@@ -526,7 +526,6 @@ class _AvatarGroupFactory {
     Color? ringColor,
   }) {
     return DLAvatarGroup(
-      size: size,
       items: items,
       maxVisible: maxVisible,
       overflowCount: overflowCount,
@@ -534,6 +533,7 @@ class _AvatarGroupFactory {
       direction: direction,
       overlapFraction: overlapFraction,
       ringColor: ringColor,
+      groupSize: size,
     );
   }
 }

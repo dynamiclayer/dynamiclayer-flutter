@@ -1,24 +1,16 @@
+// dl_avatar.dart
+import 'package:dynamiclayer_flutter/src/tokens/dl_font_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../dynamiclayers.dart';
-
-/// ---------------------------------------------------------------------------
-/// 🧩 DynamicLayers — Avatar
-/// ---------------------------------------------------------------------------
-/// Types: icon | initials | image
-/// Sizes: lg(56), md(48), sm(40), xs(32)
-/// Presence: online | offline | default  (NOT rendered unless [showPresence]=true)
-///
-/// Notes:
-/// • You requested "without online/offline badge": [showPresence] defaults to false.
-/// • For [type=image], provide [imageProvider]. Falls back to icon/initials.
-/// • For [type=initials], provide [initials] (2 chars recommended).
-/// ---------------------------------------------------------------------------
+import '../../../generated/assets.dart';
 
 enum DLAvatarType { icon, initials, image }
 
 enum DLAvatarPresence { online, offline, defaultState }
 
-enum DLAvatarSize { lg, md, sm, xs }
+// ADDED: xxs (24px)
+enum DLAvatarSize { lg, md, sm, xs, xxs }
 
 class DLAvatar extends StatelessWidget {
   const DLAvatar({
@@ -75,10 +67,27 @@ class DLAvatar extends StatelessWidget {
         return 40;
       case DLAvatarSize.xs:
         return 32;
+      case DLAvatarSize.xxs:
+        return 24; // NEW
     }
   }
 
   double get _fontSize {
+    switch (size) {
+      case DLAvatarSize.lg:
+        return DlFontSize.f5;
+      case DLAvatarSize.md:
+        return DlFontSize.f4;
+      case DLAvatarSize.sm:
+        return DlFontSize.f2;
+      case DLAvatarSize.xs:
+        return DlFontSize.f1;
+      case DLAvatarSize.xxs:
+        return DlFontSize.f1; // reuse the smallest token
+    }
+  }
+
+  double get _presenceDot {
     switch (size) {
       case DLAvatarSize.lg:
         return 18;
@@ -88,20 +97,8 @@ class DLAvatar extends StatelessWidget {
         return 14;
       case DLAvatarSize.xs:
         return 12;
-    }
-  }
-
-  // Presence dot size relative to avatar
-  double get _presenceDot {
-    switch (size) {
-      case DLAvatarSize.lg:
-        return 12;
-      case DLAvatarSize.md:
+      case DLAvatarSize.xxs:
         return 10;
-      case DLAvatarSize.sm:
-        return 8;
-      case DLAvatarSize.xs:
-        return 8;
     }
   }
 
@@ -111,7 +108,7 @@ class DLAvatar extends StatelessWidget {
       case DLAvatarType.initials:
         return DLColors.grey100;
       case DLAvatarType.image:
-        return DLColors.violet50; // subtle tint ring like your mock
+        return DLColors.violet50;
     }
   }
 
@@ -119,7 +116,7 @@ class DLAvatar extends StatelessWidget {
     switch (type) {
       case DLAvatarType.icon:
       case DLAvatarType.initials:
-        return DLColors.grey700;
+        return DLColors.grey500; // NOTE: matches your request for small sizes
       case DLAvatarType.image:
         return DLColors.black;
     }
@@ -175,11 +172,19 @@ class DLAvatar extends StatelessWidget {
   Widget _buildInner(Color fg) {
     switch (type) {
       case DLAvatarType.icon:
-        return Icon(Icons.person, size: _iconSize(), color: fg);
+        return Padding(
+          padding: EdgeInsets.all(_iconInnerPadding()),
+          child: SvgPicture.asset(
+            Assets.avatarUser,
+            width: _iconSize(),
+            height: _iconSize(),
+            color: fg,
+          ),
+        );
 
       case DLAvatarType.initials:
         return Text(
-          initials,
+          initials.length > 2 ? initials.substring(0, 2) : initials,
           style: _initialsStyle(fg),
           maxLines: 1,
           overflow: TextOverflow.clip,
@@ -187,8 +192,12 @@ class DLAvatar extends StatelessWidget {
 
       case DLAvatarType.image:
         if (imageProvider == null) {
-          // graceful fallback to icon
-          return Icon(Icons.person, size: _iconSize(), color: fg);
+          return SvgPicture.asset(
+            Assets.avatarUser,
+            width: _iconSize(),
+            height: _iconSize(),
+            color: fg,
+          );
         }
         return ClipOval(
           child: Image(
@@ -204,31 +213,40 @@ class DLAvatar extends StatelessWidget {
   double _iconSize() {
     switch (size) {
       case DLAvatarSize.lg:
-        return 28;
       case DLAvatarSize.md:
-        return 24;
       case DLAvatarSize.sm:
-        return 20;
+        return 24;
       case DLAvatarSize.xs:
-        return 18;
+        return 16;
+      case DLAvatarSize.xxs:
+        return 12; // NEW
+    }
+  }
+
+  double _iconInnerPadding() {
+    switch (size) {
+      case DLAvatarSize.lg:
+        return 16;
+      case DLAvatarSize.md:
+        return 12;
+      case DLAvatarSize.sm:
+        return 8;
+      case DLAvatarSize.xs:
+        return 8;
+      case DLAvatarSize.xxs:
+        return 6; // NEW
     }
   }
 
   TextStyle _initialsStyle(Color color) {
-    // Inter, semibold, proper line-height via DLTypos
     TextStyle base;
     switch (size) {
       case DLAvatarSize.lg:
-        base = DLTypos.textLgSemibold(color: color);
-        break;
       case DLAvatarSize.md:
-        base = DLTypos.textBaseSemibold(color: color);
-        break;
       case DLAvatarSize.sm:
-        base = DLTypos.textSmSemibold(color: color);
-        break;
       case DLAvatarSize.xs:
-        base = DLTypos.textXsSemibold(color: color);
+      case DLAvatarSize.xxs:
+        base = DLTypos.textXlSemibold(color: color);
         break;
     }
     return base.copyWith(fontSize: _fontSize);

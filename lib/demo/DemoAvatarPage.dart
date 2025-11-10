@@ -45,7 +45,7 @@ class DemoAvatarPage extends StatelessWidget {
     required DLAvatarPresence presence,
     required bool showPresence,
   }) {
-    final memoji = const AssetImage(Assets.iconMemoji);
+    final memoji = const AssetImage(Assets.avatarAvatar);
 
     Widget tile(String label, Widget child) => Column(
       mainAxisSize: MainAxisSize.min,
@@ -107,6 +107,7 @@ class DemoAvatarPage extends StatelessWidget {
     DLAvatarSize.md => 'md',
     DLAvatarSize.sm => 'sm',
     DLAvatarSize.xs => 'xs',
+    DLAvatarSize.xxs => 'xxs',
   };
 }
 

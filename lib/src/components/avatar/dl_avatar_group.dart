@@ -1,13 +1,16 @@
+// dl_avatar_group.dart
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart';
 
 /// ---------------------------------------------------------------------------
 /// 🧩 DynamicLayers — AvatarGroup (diagonal with ~40% overlap)
 /// ---------------------------------------------------------------------------
-/// • Layouts: row | diagonal (default: diagonal)
-/// • Overlap: defaults to 0.40 (40%) on both X and Y
-/// • Sizes: lg(56), md(48), sm(40), xs(32)
-/// • Optional numeric counter bubble as last circle
+/// Group sizes:
+/// • lg → each item is 40px (uses DLAvatarSize.sm)
+/// • xs → each item is 24px (uses DLAvatarSize.xxs)
+/// Overlap: default 0.40 for both X and Y
+/// Layouts: row | diagonal (default: diagonal)
+/// Optional numeric counter bubble as last circle
 /// ---------------------------------------------------------------------------
 
 class DLAvatarItem {
@@ -54,10 +57,12 @@ class DLAvatarItem {
 
 enum DLAvatarGroupLayout { row, diagonal }
 
+enum DLAvatarGroupSize { lg, xs } // NEW: only two sizes as requested
+
 class DLAvatarGroup extends StatelessWidget {
   const DLAvatarGroup({
     super.key,
-    required this.size,
+    required this.groupSize,
     required this.items,
 
     this.maxVisible = 2,
@@ -71,7 +76,7 @@ class DLAvatarGroup extends StatelessWidget {
     this.ringColor,
   });
 
-  final DLAvatarSize size;
+  final DLAvatarGroupSize groupSize;
   final List<DLAvatarItem> items;
 
   final int maxVisible;
@@ -84,32 +89,25 @@ class DLAvatarGroup extends StatelessWidget {
   final double? diagonalYOffsetFraction;
   final Color? ringColor;
 
-  // ---- size map -------------------------------------------------------------
-  double get _sizePx {
-    switch (size) {
-      case DLAvatarSize.lg:
-        return 56;
-      case DLAvatarSize.md:
-        return 48;
-      case DLAvatarSize.sm:
-        return 40;
-      case DLAvatarSize.xs:
-        return 32;
-    }
-  }
+  // ---- per-item pixel + DLAvatar size mapping ------------------------------
+  double get _itemPx => switch (groupSize) {
+    DLAvatarGroupSize.lg => 40, // mapped to DLAvatarSize.sm
+    DLAvatarGroupSize.xs => 24, // mapped to DLAvatarSize.xxs
+  };
+
+  DLAvatarSize get _avatarSizeEnum => switch (groupSize) {
+    DLAvatarGroupSize.lg => DLAvatarSize.sm,
+    DLAvatarGroupSize.xs => DLAvatarSize.xxs,
+  };
 
   // Default overlap set to 0.40 for all sizes
   double get _defaultOverlap => 0.40;
 
   TextStyle _countStyle(Color color) {
-    switch (size) {
-      case DLAvatarSize.lg:
-        return DLTypos.textLgSemibold(color: color);
-      case DLAvatarSize.md:
-        return DLTypos.textBaseSemibold(color: color);
-      case DLAvatarSize.sm:
+    switch (groupSize) {
+      case DLAvatarGroupSize.lg:
         return DLTypos.textSmSemibold(color: color);
-      case DLAvatarSize.xs:
+      case DLAvatarGroupSize.xs:
         return DLTypos.textXsSemibold(color: color);
     }
   }
@@ -118,12 +116,12 @@ class DLAvatarGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final ov = overlapFraction ?? _defaultOverlap;
 
-    // Horizontal step: remaining visible part after 40% overlap
-    final xStep = _sizePx * (1 - ov);
+    // Horizontal step: remaining visible part after overlap
+    final xStep = _itemPx * (1 - ov);
 
-    // Vertical step (diagonal): also 40% by default
+    // Vertical step (diagonal)
     final yStep = layout == DLAvatarGroupLayout.diagonal
-        ? _sizePx * (1 - (diagonalYOffsetFraction ?? ov))
+        ? _itemPx * (1 - (diagonalYOffsetFraction ?? ov))
         : 0.0;
 
     final visible = items.take(maxVisible).toList();
@@ -171,7 +169,7 @@ class DLAvatarGroup extends StatelessWidget {
           right: direction == TextDirection.rtl ? dx.abs() : null,
           top: dy,
           child: _CounterCircle(
-            size: _sizePx,
+            size: _itemPx,
             text: '${overflowCount ?? 2}',
             style: _countStyle(DLColors.grey700),
           ),
@@ -182,12 +180,12 @@ class DLAvatarGroup extends StatelessWidget {
     // Overall canvas size
     final totalColumns = (showCounter ? countForAvatars + 1 : countForAvatars);
     final totalWidth = totalColumns <= 0
-        ? _sizePx
-        : _sizePx + (xStep * ((totalColumns - 1).clamp(0, 999)));
+        ? _itemPx
+        : _itemPx + (xStep * ((totalColumns - 1).clamp(0, 999)));
 
     final totalHeight = layout == DLAvatarGroupLayout.diagonal
-        ? (_sizePx + yStep * ((totalColumns - 1).clamp(0, 999)))
-        : _sizePx;
+        ? (_itemPx + yStep * ((totalColumns - 1).clamp(0, 999)))
+        : _itemPx;
 
     return SizedBox(
       width: totalWidth,
@@ -201,13 +199,18 @@ class DLAvatarGroup extends StatelessWidget {
     final borderClr = item.borderColor ?? (withRing ? ringColor : null);
     final borderW = item.borderWidth ?? (withRing ? 2.0 : 0.0);
 
+    // For group xs (24px), default foreground to grey-500 if not supplied.
+    final defaultFgForXxs = groupSize == DLAvatarGroupSize.xs
+        ? (item.foregroundColor ?? DLColors.grey500)
+        : item.foregroundColor;
+
     return DLAvatar(
       type: item.type,
-      size: size,
+      size: _avatarSizeEnum, // 40px → sm, 24px → xxs
       initials: item.initials ?? 'Aa',
       imageProvider: item.imageProvider,
       backgroundColor: item.backgroundColor,
-      foregroundColor: item.foregroundColor,
+      foregroundColor: defaultFgForXxs,
       borderColor: borderClr,
       borderWidth: borderW,
     );

@@ -5,9 +5,9 @@ import '../../../dynamiclayers.dart';
 /// 🧭 DynamicLayers — Bottom Navigation Bar (auto-height, no overflow)
 /// ---------------------------------------------------------------------------
 /// • Renders 2–5 items with equal spacing
-/// • Optional top separator (DLSeparator)
-/// • Optional iOS-like home indicator (now gets its own vertical space)
-/// • Auto height: no fixed SizedBox height, content defines its own height
+/// • Top line uses DLSeparator (not Divider)
+/// • No pressed/ripple/hover effects on item taps
+/// • Optional iOS-like home indicator (with its own vertical space)
 /// • SafeArea-aware, with extra bottom padding for the home indicator
 /// ---------------------------------------------------------------------------
 class DLBottomNavBar extends StatelessWidget {
@@ -24,17 +24,6 @@ class DLBottomNavBar extends StatelessWidget {
 
     // Separator
     this.showSeparator = true,
-    this.separatorColor = const Color(0x1F000000),
-    this.separatorThickness = 1.0,
-
-    // Home indicator pill (now placed in its own row below the items)
-    this.showHomeIndicator = true,
-    this.homeIndicatorColor = DLColors.black,
-    this.homeIndicatorWidth = 120,
-    this.homeIndicatorHeight = 4,
-    this.homeIndicatorRadius = 999,
-    this.homeIndicatorTopGap = 6,
-    this.homeIndicatorBottomGap = 6,
 
     // Shadow/elevation
     this.elevation = 8.0,
@@ -54,17 +43,6 @@ class DLBottomNavBar extends StatelessWidget {
 
   // Separator
   final bool showSeparator;
-  final Color separatorColor;
-  final double separatorThickness;
-
-  // Home indicator
-  final bool showHomeIndicator;
-  final Color homeIndicatorColor;
-  final double homeIndicatorWidth;
-  final double homeIndicatorHeight;
-  final double homeIndicatorRadius;
-  final double homeIndicatorTopGap;
-  final double homeIndicatorBottomGap;
 
   // Elevation
   final double elevation;
@@ -74,42 +52,36 @@ class DLBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Local Theme override to disable all ink/splash/pressed effects
+    final noInkTheme = Theme.of(context).copyWith(
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+    );
+
     Widget bar = Material(
       color: backgroundColor,
       elevation: elevation,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // MUST be the Separator Component (full width)
           if (showSeparator)
-            DLSeparator(
-              direction: DLSeparatorDirection.horizontal,
-              thickness: separatorThickness,
-              color: separatorColor,
-            ),
+            DLSeparator(direction: DLSeparatorDirection.horizontal),
 
           // Items row (icon + optional label) – auto height via padding
           Padding(
             padding: contentPadding,
-            child: Row(
-              children: items
-                  .map((w) => Expanded(child: Center(child: w)))
-                  .toList(),
-            ),
-          ),
-
-          // Dedicated space for the home indicator (no overlay ⇒ no overflow)
-          if (showHomeIndicator) ...[
-            SizedBox(height: homeIndicatorTopGap),
-            Container(
-              width: homeIndicatorWidth,
-              height: homeIndicatorHeight,
-              decoration: BoxDecoration(
-                color: homeIndicatorColor,
-                borderRadius: BorderRadius.circular(homeIndicatorRadius),
+            child: Theme(
+              data: noInkTheme,
+              child: Row(
+                children: items
+                    .map((w) => Expanded(child: Center(child: w)))
+                    .toList(),
               ),
             ),
-            SizedBox(height: homeIndicatorBottomGap),
-          ],
+          ),
         ],
       ),
     );

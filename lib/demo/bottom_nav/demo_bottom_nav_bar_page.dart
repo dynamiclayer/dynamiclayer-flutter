@@ -73,7 +73,6 @@ class _BarPreviewState extends State<_BarPreview> {
     required VoidCallback onTap,
   }) {
     return DLBottomNavTab(
-      iconImage: _icon,
       label: label,
       showLabel: true,
       selected: selected,
@@ -89,21 +88,18 @@ class _BarPreviewState extends State<_BarPreview> {
     final items = List<Widget>.generate(widget.count, (i) {
       return _tab(
         label: 'Label',
-        selected: i == _selectedIndex,
+        selected: true,
+        // i == _selectedIndex,
         onTap: () => setState(() => _selectedIndex = i),
       );
     });
 
-    return DynamicLayers.bottomNavBar.call(
+    return DLBottomNavBar(
       items: items,
       showSeparator: true,
-      showHomeIndicator: true,
       elevation: 0,
       backgroundColor: DLColors.white,
-      separatorColor: const Color(0x1F000000),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      homeIndicatorTopGap: 6,
-      homeIndicatorBottomGap: 6,
     );
   }
 }

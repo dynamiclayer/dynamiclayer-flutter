@@ -6,6 +6,7 @@ class DLSpacing {
   static const double p0 = 0;
   static const double p2 = 2;
   static const double p4 = 4;
+  static const double p6 = 6;
   static const double p8 = 8;
   static const double p10 = 10;
   static const double p12 = 12;

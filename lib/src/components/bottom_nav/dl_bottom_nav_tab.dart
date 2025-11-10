@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../dynamiclayers.dart';
+import '../../../generated/assets.dart';
 
 enum DLBnavBadge { none, sm, md }
 
-/// How to render the provided image icon.
+/// How to render the provided SVG icon.
 enum DLBnavIconStyle {
-  /// Keep the original image colors. (Default)
+  /// Keep the original SVG colors. (Default)
   /// Unselected state is shown via [unselectedOpacity].
   original,
 
-  /// Force a solid mono-color tint (like ImageIcon does).
+  /// Force a solid mono-color tint.
   /// Uses [selectedColor]/[unselectedColor].
   tint,
 }
@@ -18,13 +20,11 @@ class DLBottomNavTab extends StatelessWidget {
   const DLBottomNavTab({
     super.key,
 
-    // Icon images
-    required this.iconImage,
-    this.selectedIconImage,
-    this.unselectedIconImage,
+    // Sizing & style
     this.iconSize = 24,
     this.iconStyle = DLBnavIconStyle.original,
-    this.unselectedOpacity = 0.55, // gently dim when not selected
+    this.unselectedOpacity = 0.55,
+
     // Label & state
     this.label = 'Label',
     this.showLabel = true,
@@ -43,24 +43,10 @@ class DLBottomNavTab extends StatelessWidget {
 
     // Interaction
     this.onTap,
-  });
-
-  /// Base icon used for both states unless overrides below are provided.
-  final ImageProvider iconImage;
-
-  /// Optional override for selected state.
-  final ImageProvider? selectedIconImage;
-
-  /// Optional override for unselected state.
-  final ImageProvider? unselectedIconImage;
+  }) : assert(unselectedOpacity >= 0 && unselectedOpacity <= 1);
 
   final double iconSize;
-
-  /// original = keep asset colors (default), tint = force mono-color.
   final DLBnavIconStyle iconStyle;
-
-  /// Only applies when [iconStyle] == original (no tint).
-  /// Controls how dim the unselected icon appears.
   final double unselectedOpacity;
 
   final String label;
@@ -74,77 +60,99 @@ class DLBottomNavTab extends StatelessWidget {
   final Offset badgeOffsetSm;
   final Offset badgeOffsetMd;
 
-  /// Only used when [iconStyle] == tint
   final Color selectedColor;
   final Color unselectedColor;
 
   final VoidCallback? onTap;
 
+  // Point to your generated SVG asset paths
+  String get _selectedAsset => Assets.bottomNavigationSelected;
+  String get _unselectedAsset => Assets.bottomNavigationUnselected;
+
+  TextStyle _labelStyle(bool isSelected) {
+    const double _letterSpacing8 = 0.0;
+    return DLTypos.textSmBold(
+      color: isSelected ? DLColors.black : DLColors.grey400,
+    ).copyWith(letterSpacing: _letterSpacing8);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Color labelColor = selected ? selectedColor : unselectedColor;
-    final textStyle = selected
-        ? DLTypos.textSmBold(color: labelColor)
-        : DLTypos.textSmRegular(color: labelColor);
+    // 1) Decide which SVG to show
+    final String assetPath = selected ? _selectedAsset : _unselectedAsset;
 
-    // Decide which image to show (allow explicit overrides).
-    final ImageProvider baseImage = selected
-        ? (selectedIconImage ?? iconImage)
-        : (unselectedIconImage ?? iconImage);
-
-    // Build the icon with either preserved colors or tinted.
+    // 2) Build icon (tinted or original)
     Widget baseIcon;
     if (iconStyle == DLBnavIconStyle.tint) {
-      // Monochrome tint (behaves like ImageIcon).
-      baseIcon = ImageIcon(
-        baseImage,
-        size: iconSize,
-        color: selected ? selectedColor : unselectedColor,
-      );
-    } else {
-      // Preserve asset colors. Dim the unselected state with opacity.
-      baseIcon = Image(
-        image: baseImage,
+      baseIcon = SvgPicture.asset(
+        assetPath,
         width: iconSize,
         height: iconSize,
-        filterQuality: FilterQuality.medium,
+        fit: BoxFit.contain,
+        colorFilter: ColorFilter.mode(
+          selected ? selectedColor : unselectedColor,
+          BlendMode.srcIn,
+        ),
       );
-
+    } else {
+      baseIcon = SvgPicture.asset(
+        assetPath,
+        width: iconSize,
+        height: iconSize,
+        fit: BoxFit.contain,
+      );
       if (!selected) {
         baseIcon = Opacity(opacity: unselectedOpacity, child: baseIcon);
       }
     }
 
-    // Apply badge overlay if requested.
-    final Widget iconWithBadge = switch (badge) {
-      DLBnavBadge.none => baseIcon,
-      DLBnavBadge.sm => DLBadgeAnchor(
-        child: baseIcon,
-        badge: const DLBadge(size: DLBadgeSize.sm),
-        alignment: badgeAlignment,
-        offset: badgeOffsetSm,
-        showIfZero: true,
-      ),
-      DLBnavBadge.md => DLBadgeAnchor(
-        child: baseIcon,
-        badge: DLBadge(size: DLBadgeSize.md, count: badgeCount),
-        alignment: badgeAlignment,
-        offset: badgeOffsetMd,
-        showIfZero: false,
-      ),
-    };
+    // 3) Badge (classic switch statement for Dart 2.x)
+    Widget iconWithBadge = baseIcon;
+    switch (badge) {
+      case DLBnavBadge.none:
+        // already baseIcon
+        break;
+      case DLBnavBadge.sm:
+        iconWithBadge = DLBadgeAnchor(
+          child: baseIcon,
+          badge: const DLBadge(size: DLBadgeSize.sm),
+          alignment: badgeAlignment,
+          offset: badgeOffsetSm,
+          showIfZero: true,
+        );
+        break;
+      case DLBnavBadge.md:
+        iconWithBadge = DLBadgeAnchor(
+          child: baseIcon,
+          badge: DLBadge(size: DLBadgeSize.md, count: badgeCount),
+          alignment: badgeAlignment,
+          offset: badgeOffsetMd,
+          showIfZero: false,
+        );
+        break;
+    }
 
-    final content = Column(
+    // 4) Content
+    final Widget content = Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
+        const SizedBox(height: DLSpacing.p8),
         iconWithBadge,
-        if (showLabel) ...[
-          const SizedBox(height: 6),
-          Text(label, style: textStyle),
+        if (showLabel) ...<Widget>[
+          const SizedBox(height: DLSpacing.p8),
+          Text(
+            label,
+            style: _labelStyle(selected),
+            textAlign: TextAlign.center,
+            softWrap: false,
+            overflow: TextOverflow.visible,
+          ),
         ],
+        const SizedBox(height: DLSpacing.p8),
       ],
     );
 
+    // 5) Return the built widget (ensures build always returns a Widget)
     return Semantics(
       selected: selected,
       button: true,

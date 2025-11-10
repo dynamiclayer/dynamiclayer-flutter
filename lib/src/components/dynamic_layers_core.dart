@@ -15,9 +15,6 @@ class DynamicLayers {
   static _BadgeFactory get badge => const _BadgeFactory._();
   static _AvatarFactory get avatar => const _AvatarFactory._();
   static _AvatarGroupFactory get avatarGroup => const _AvatarGroupFactory._();
-  static _BottomNavFactory get bottomNav => const _BottomNavFactory._();
-  static _BottomNavBarFactory get bottomNavBar =>
-      const _BottomNavBarFactory._();
 }
 
 class _ButtonFactory {
@@ -537,115 +534,6 @@ class _AvatarGroupFactory {
       direction: direction,
       overlapFraction: overlapFraction,
       ringColor: ringColor,
-    );
-  }
-}
-
-class _BottomNavFactory {
-  const _BottomNavFactory._();
-
-  Widget tab({
-    // Image-based icon (required)
-    required ImageProvider iconImage,
-    double iconSize = 24,
-
-    // Label & state
-    String label = 'Label',
-    bool showLabel = true,
-    bool selected = false,
-
-    // Badge
-    DLBnavBadge badge = DLBnavBadge.none,
-    int badgeCount = 1,
-
-    // Colors
-    Color selectedColor = DLColors.black,
-    Color unselectedColor = DLColors.grey400,
-
-    // Badge placement
-    Alignment badgeAlignment = Alignment.topRight,
-    Offset badgeOffsetSm = const Offset(2, -2),
-    Offset badgeOffsetMd = const Offset(4, -4),
-
-    // Interaction
-    VoidCallback? onTap,
-  }) {
-    return DLBottomNavTab(
-      iconImage: iconImage,
-      iconSize: iconSize,
-      label: label,
-      showLabel: showLabel,
-      selected: selected,
-      badge: badge,
-      badgeCount: badgeCount,
-      selectedColor: selectedColor,
-      unselectedColor: unselectedColor,
-      badgeAlignment: badgeAlignment,
-      badgeOffsetSm: badgeOffsetSm,
-      badgeOffsetMd: badgeOffsetMd,
-      onTap: onTap,
-    );
-  }
-}
-
-/// Prefer this over `DynamicLayers.buttons(...)`.
-///
-/// Example:
-/// ```dart
-/// DLButton(
-///   type: DLButtonType.primary,
-///   label: 'Save',
-///   onPressed: () {},
-/// );
-/// ```
-
-class _BottomNavBarFactory {
-  const _BottomNavBarFactory._();
-
-  Widget call({
-    required List<Widget> items,
-    Color backgroundColor = DLColors.white,
-
-    // Content spacing inside the bar
-    EdgeInsetsGeometry contentPadding = const EdgeInsets.symmetric(
-      horizontal: 12,
-      vertical: 8,
-    ),
-
-    // Separator
-    bool showSeparator = true,
-    Color separatorColor = const Color(0x1F000000),
-    double separatorThickness = 1.0,
-
-    // Home indicator pill (owns its own vertical space)
-    bool showHomeIndicator = true,
-    Color homeIndicatorColor = DLColors.black,
-    double homeIndicatorWidth = 120,
-    double homeIndicatorHeight = 4,
-    double homeIndicatorRadius = 999,
-    double homeIndicatorTopGap = 6,
-    double homeIndicatorBottomGap = 6,
-
-    // Elevation / SafeArea
-    double elevation = 8.0,
-    bool useSafeArea = true,
-  }) {
-    return DLBottomNavBar(
-      items: items,
-      backgroundColor: backgroundColor,
-      contentPadding: contentPadding,
-      showSeparator: showSeparator,
-      separatorColor: separatorColor,
-      separatorThickness: separatorThickness,
-      showHomeIndicator: showHomeIndicator,
-      homeIndicatorColor: homeIndicatorColor,
-      homeIndicatorWidth: homeIndicatorWidth,
-      homeIndicatorHeight: homeIndicatorHeight,
-      homeIndicatorRadius: homeIndicatorRadius,
-      homeIndicatorTopGap: homeIndicatorTopGap,
-      homeIndicatorBottomGap: homeIndicatorBottomGap,
-      elevation: elevation,
-      useSafeArea: useSafeArea,
     );
   }
 }

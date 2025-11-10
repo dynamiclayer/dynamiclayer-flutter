@@ -5,9 +5,6 @@ import '../../generated/assets.dart';
 class DemoBottomNavTabPage extends StatelessWidget {
   const DemoBottomNavTabPage({super.key});
 
-  // Replace with your asset (Iconset/dynamiclayer)
-  ImageProvider get _iconImage => const AssetImage(Assets.iconLogo);
-
   Widget _cell({
     required bool showLabel,
     required bool selected,
@@ -15,8 +12,7 @@ class DemoBottomNavTabPage extends StatelessWidget {
     int badgeCount = 1,
   }) {
     return Center(
-      child: DynamicLayers.bottomNav.tab(
-        iconImage: _iconImage,
+      child: DLBottomNavTab(
         label: 'Label',
         showLabel: showLabel,
         selected: selected,

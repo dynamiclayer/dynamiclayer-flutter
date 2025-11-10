@@ -8,6 +8,10 @@ class Assets {
   static const String alertsCircleCheck = 'assets/alerts/circle_check.png';
   static const String alertsCircleX = 'assets/alerts/circle_x.png';
   static const String alertsInfo = 'assets/alerts/info.png';
+  static const String bottomNavigationSelected =
+      'assets/bottomNavigation/selected.svg';
+  static const String bottomNavigationUnselected =
+      'assets/bottomNavigation/unselected.svg';
   static const String bottomSheetBadgeGold =
       'assets/bottomSheet/badge-gold.png';
   static const String bottomSheetX = 'assets/bottomSheet/x.png';

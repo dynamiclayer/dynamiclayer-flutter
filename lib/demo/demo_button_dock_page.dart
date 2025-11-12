@@ -1,5 +1,6 @@
+// lib/demo/DemoButtonDockPage.dart
 import 'package:flutter/material.dart';
-import '../dynamiclayers.dart'; // exposes DLButtonDock, DLDockButton, etc.
+import '../dynamiclayers.dart'; // exposes DLButtonDock, DlButtonDock, tokens
 
 class DemoButtonDockPage extends StatelessWidget {
   const DemoButtonDockPage({super.key});
@@ -30,9 +31,7 @@ class DemoButtonDockPage extends StatelessWidget {
   }
 }
 
-/// ---------------------------------------------------------------------------
 /// Variant 1: Single button, vertical (full width)
-/// ---------------------------------------------------------------------------
 class _OneButtonVertical extends StatelessWidget {
   const _OneButtonVertical();
 
@@ -44,21 +43,16 @@ class _OneButtonVertical extends StatelessWidget {
           label: 'Button',
           type: DLButtonType.primary,
           onPressed: () {},
-          width: double.infinity,
         ),
       ],
       direction: Axis.vertical,
-      gap: 0,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      showSeparator: true, // uses DLSeparator internally
-      showHomeIndicator: false, // iOS bar is NOT part of the component
+      showSeparator: true,
     );
   }
 }
 
-/// ---------------------------------------------------------------------------
-/// Variant 2: Two buttons, horizontal (split 50/50 with gap)
-/// ---------------------------------------------------------------------------
+/// Variant 2: Two buttons, horizontal (split 50/50)
 class _TwoButtonsHorizontal extends StatelessWidget {
   const _TwoButtonsHorizontal();
 
@@ -78,17 +72,17 @@ class _TwoButtonsHorizontal extends StatelessWidget {
         ),
       ],
       direction: Axis.horizontal,
-      gap: 12, // space between the two buttons
+      // Force equal width
+      horizontalSplitEvenly: true, // <- ensures 50/50 (both Expanded)
+      // keep default horizontalGap=16 from the dock, or set it explicitly:
+      // horizontalGap: 16,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       showSeparator: true,
-      showHomeIndicator: false,
     );
   }
 }
 
-/// ---------------------------------------------------------------------------
 /// Variant 3: Two buttons, vertical (stacked full width)
-/// ---------------------------------------------------------------------------
 class _TwoButtonsVertical extends StatelessWidget {
   const _TwoButtonsVertical();
 
@@ -100,20 +94,16 @@ class _TwoButtonsVertical extends StatelessWidget {
           label: 'Button',
           type: DLButtonType.primary,
           onPressed: () {},
-          width: double.infinity,
         ),
         DlButtonDock(
           label: 'Button',
           type: DLButtonType.secondary,
           onPressed: () {},
-          width: double.infinity,
         ),
       ],
       direction: Axis.vertical,
-      gap: 12, // vertical spacing between stacked buttons
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       showSeparator: true,
-      showHomeIndicator: false,
     );
   }
 }

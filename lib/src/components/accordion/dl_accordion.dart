@@ -10,13 +10,14 @@ class DLAccordion extends StatefulWidget {
     this.trigger = 'Accordion',
     this.content =
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
-    this.showSeparator = false,
+
+    // Borders
     this.showTopBorder = true,
     this.showBottomBorder = true,
 
     // Layout
     this.width,
-    // keep API the same but we'll only honor LEFT/RIGHT to guarantee 48 height
+    // header keeps exact 48 height (only L/R applied)
     this.headerPadding = const EdgeInsets.symmetric(horizontal: DLSpacing.p0),
     this.contentPadding = const EdgeInsets.fromLTRB(
       DLSpacing.p0,
@@ -25,7 +26,6 @@ class DLAccordion extends StatefulWidget {
       DLSpacing.p12,
     ),
 
-    // Border chrome
     this.borderColor = DLColors.grey200,
     this.borderThickness = 1.0,
 
@@ -42,15 +42,21 @@ class DLAccordion extends StatefulWidget {
     this.duration = const Duration(milliseconds: 180),
     this.curve = Curves.easeInOut,
 
-    // Callbacks
+    // Callback
     this.onChanged,
+
+    // Kept for backward compatibility; no longer used.
+    // ignore: unused_field
+    this.showSeparator = false,
   });
 
   final DLAccordionState state;
   final String trigger;
   final String content;
 
+  // kept but unused (middle separator removed)
   final bool showSeparator;
+
   final bool showTopBorder;
   final bool showBottomBorder;
 
@@ -77,8 +83,7 @@ class DLAccordion extends StatefulWidget {
   State<DLAccordion> createState() => _DLAccordionState();
 }
 
-class _DLAccordionState extends State<DLAccordion>
-    with SingleTickerProviderStateMixin {
+class _DLAccordionState extends State<DLAccordion> {
   late bool _expanded;
 
   bool get _disabled => widget.state == DLAccordionState.disabled;
@@ -97,7 +102,6 @@ class _DLAccordionState extends State<DLAccordion>
 
   @override
   Widget build(BuildContext context) {
-    // Inter Medium (w500)
     final baseTriggerStyle =
         (widget.triggerStyle ?? DLTypos.textBaseRegular(color: DLColors.black))
             .copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w500);
@@ -122,14 +126,16 @@ class _DLAccordionState extends State<DLAccordion>
           color: _disabled ? DLColors.grey600 : DLColors.black,
         );
 
-    // Resolve header padding but apply only LEFT/RIGHT to keep exact 48 height
-    final resolved = widget.headerPadding.resolve(Directionality.of(context));
-    final horizontalOnly = EdgeInsets.only(
-      left: resolved.left,
-      right: resolved.right,
+    // Resolve paddings
+    final headerResolved = widget.headerPadding.resolve(
+      Directionality.of(context),
+    );
+    final headerHorizontalOnly = EdgeInsets.only(
+      left: headerResolved.left,
+      right: headerResolved.right,
     );
 
-    // ---- Header: EXACT 48px (padding inside, horizontal only)
+    // Header (fixed 48)
     final header = InkWell(
       onTap: _disabled ? null : _toggle,
       splashColor: Colors.transparent,
@@ -137,11 +143,10 @@ class _DLAccordionState extends State<DLAccordion>
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: SizedBox(
-        height: 48, // ✅ fixed height
+        height: 48,
         child: Padding(
-          padding: horizontalOnly,
+          padding: headerHorizontalOnly,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Align(
@@ -169,19 +174,7 @@ class _DLAccordionState extends State<DLAccordion>
       ),
     );
 
-    // Optional internal separator (only when expanded to avoid double borders)
-    final separator = (widget.showSeparator && _expanded)
-        ? Padding(
-            padding: const EdgeInsets.only(top: DLSpacing.p8),
-            child: DLSeparator(
-              direction: DLSeparatorDirection.horizontal,
-              thickness: 1.0,
-              color: DLColors.grey200,
-            ),
-          )
-        : const SizedBox.shrink();
-
-    // Fade-in from top for content
+    // Body (no middle separator anymore)
     final body = AnimatedSwitcher(
       duration: widget.duration,
       switchInCurve: widget.curve,
@@ -205,6 +198,7 @@ class _DLAccordionState extends State<DLAccordion>
           : const SizedBox.shrink(key: ValueKey('collapsed')),
     );
 
+    // Only top/bottom borders remain; bottom acts as the only separator
     return Container(
       width: widget.width,
       decoration: BoxDecoration(
@@ -225,7 +219,10 @@ class _DLAccordionState extends State<DLAccordion>
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [header, if (widget.showSeparator) separator, body],
+        children: [
+          header,
+          body, // ⬅️ no middle separator
+        ],
       ),
     );
   }

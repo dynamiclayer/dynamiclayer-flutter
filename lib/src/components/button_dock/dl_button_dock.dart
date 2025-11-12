@@ -1,4 +1,4 @@
-// dl_button_dock.dart
+// lib/src/components/buttons/dl_button_dock.dart
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart'; // DLSeparator & DynamicLayers.buttons
 
@@ -43,7 +43,11 @@ class DlButtonDock {
   final bool fixedWidth;
 }
 
-/// Button Dock
+/// Button Dock with precise gaps per spec.
+/// - Outer padding: 16
+/// - Vertical gap: 16
+/// - Horizontal gap: 16
+/// - Horizontal strategy (default): first button Expanded, last button HUG (intrinsic)
 class DLButtonDock extends StatelessWidget {
   const DLButtonDock({
     super.key,
@@ -51,24 +55,22 @@ class DLButtonDock extends StatelessWidget {
 
     // Layout
     this.direction = Axis.vertical,
-    this.gap = 12,
+    this.verticalGap = DLSpacing.p16, // p16
+    this.horizontalGap = DLSpacing.p16, // p16
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     this.maxContentWidth = 600,
 
+    // Horizontal behavior
+    this.horizontalLastHug = true, // match mock: left fills, right hug
+    this.horizontalSplitEvenly = false, // set true to force 50/50 split
     // Chrome
     this.backgroundColor = Colors.white,
     this.elevation = 8.0,
 
     // Separator
-    this.showSeparator = false, // uses DLSeparator when true
-    this.separatorInset = EdgeInsets.zero, // full-bleed by default
-    this.separatorFullBleed = true, // span entire dock width
-    // iOS home indicator (disabled by default)
-    this.showHomeIndicator = false,
-    this.homeIndicatorColor = Colors.black,
-    this.homeIndicatorWidth = 120,
-    this.homeIndicatorHeight = 4,
-    this.homeIndicatorRadius = 999,
+    this.showSeparator = false,
+    this.separatorInset = EdgeInsets.zero,
+    this.separatorFullBleed = true,
 
     // SafeArea
     this.useSafeArea = true,
@@ -76,9 +78,17 @@ class DLButtonDock extends StatelessWidget {
 
   final List<DlButtonDock> buttons;
   final Axis direction;
-  final double gap;
+
+  // GAP controls (per spec)
+  final double verticalGap; // p16 between stacked buttons
+  final double horizontalGap; // p16 between horizontal buttons
+
   final EdgeInsetsGeometry padding;
   final double maxContentWidth;
+
+  // Horizontal strategies
+  final bool horizontalLastHug; // first Expanded, last Hug
+  final bool horizontalSplitEvenly; // both Expanded (50/50)
 
   final Color backgroundColor;
   final double elevation;
@@ -87,13 +97,6 @@ class DLButtonDock extends StatelessWidget {
   final bool showSeparator;
   final EdgeInsetsGeometry separatorInset;
   final bool separatorFullBleed;
-
-  // Home indicator (iOS)
-  final bool showHomeIndicator;
-  final Color homeIndicatorColor;
-  final double homeIndicatorWidth;
-  final double homeIndicatorHeight;
-  final double homeIndicatorRadius;
 
   final bool useSafeArea;
 
@@ -109,13 +112,12 @@ class DLButtonDock extends StatelessWidget {
         right: useSafeArea,
         bottom: useSafeArea,
         child: Column(
-          mainAxisSize: MainAxisSize.min, // intrinsic height, no overflow
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (showSeparator)
               Padding(
                 padding: separatorInset,
-                // Full-bleed separator, not constrained by maxContentWidth
                 child: separatorFullBleed
                     ? const SizedBox(
                         width: double.infinity,
@@ -132,50 +134,70 @@ class DLButtonDock extends StatelessWidget {
                       ),
               ),
 
-            // Buttons area (constrained to maxContentWidth and with padding)
+            // Buttons area
             Padding(
-              padding: padding,
+              padding: padding, // p16 outer padding
               child: Align(
                 alignment: Alignment.center,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: maxContentWidth),
                   child: direction == Axis.horizontal
-                      ? _row(buttons, gap)
-                      : _column(buttons, gap),
+                      ? _row(buttons)
+                      : _column(buttons),
                 ),
               ),
             ),
-
-            if (showHomeIndicator) ...[
-              const SizedBox(height: 4),
-              _HomeIndicator(
-                color: homeIndicatorColor,
-                width: homeIndicatorWidth,
-                height: homeIndicatorHeight,
-                radius: homeIndicatorRadius,
-              ),
-              const SizedBox(height: 6),
-            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _row(List<DlButtonDock> items, double gap) {
+  // Horizontal layout with exact gaps
+  Widget _row(List<DlButtonDock> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    // 50/50 split override
+    if (horizontalSplitEvenly) {
+      final children = <Widget>[];
+      for (var i = 0; i < items.length; i++) {
+        children.add(Expanded(child: _dockButton(items[i])));
+        if (i != items.length - 1)
+          children.add(SizedBox(width: horizontalGap)); // p16
+      }
+      return Row(children: children);
+    }
+
+    // Default: first Expanded, last Hug — matches mock with 2 buttons.
+    if (horizontalLastHug && items.length == 2) {
+      return Row(
+        children: [
+          Expanded(child: _dockButton(items[0])),
+          SizedBox(width: horizontalGap), // p16
+          _dockButton(items[1]),
+        ],
+      );
+    }
+
+    // Fallback: natural widths with fixed gap
     final children = <Widget>[];
     for (var i = 0; i < items.length; i++) {
-      children.add(Expanded(child: _dockButton(items[i])));
-      if (i != items.length - 1) children.add(SizedBox(width: gap));
+      children.add(_dockButton(items[i]));
+      if (i != items.length - 1)
+        children.add(SizedBox(width: horizontalGap)); // p16
     }
     return Row(children: children);
   }
 
-  Widget _column(List<DlButtonDock> items, double gap) {
+  // Vertical layout: stretch each to full width, gap p16
+  Widget _column(List<DlButtonDock> items) {
     final children = <Widget>[];
     for (var i = 0; i < items.length; i++) {
-      children.add(_dockButton(items[i]));
-      if (i != items.length - 1) children.add(SizedBox(height: gap));
+      children.add(
+        SizedBox(width: double.infinity, child: _dockButton(items[i])),
+      );
+      if (i != items.length - 1)
+        children.add(SizedBox(height: verticalGap)); // p16
     }
     return Column(mainAxisSize: MainAxisSize.min, children: children);
   }
@@ -198,34 +220,6 @@ class DLButtonDock extends StatelessWidget {
       borderColor: b.borderColor,
       borderWidth: b.borderWidth,
       fixedWidth: b.fixedWidth,
-    );
-  }
-}
-
-class _HomeIndicator extends StatelessWidget {
-  const _HomeIndicator({
-    required this.color,
-    required this.width,
-    required this.height,
-    required this.radius,
-  });
-
-  final Color color;
-  final double width;
-  final double height;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-      ),
     );
   }
 }

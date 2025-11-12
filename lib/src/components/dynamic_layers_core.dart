@@ -278,18 +278,12 @@ class _DockFactory {
     return DLButtonDock(
       buttons: buttons,
       direction: direction,
-      gap: gap,
+
       padding: padding,
 
       maxContentWidth: maxContentWidth,
       backgroundColor: backgroundColor,
       showSeparator: showSeparator,
-
-      showHomeIndicator: showHomeIndicator,
-      homeIndicatorColor: homeIndicatorColor,
-      homeIndicatorWidth: homeIndicatorWidth,
-      homeIndicatorHeight: homeIndicatorHeight,
-      homeIndicatorRadius: homeIndicatorRadius,
       elevation: elevation,
       useSafeArea: useSafeArea,
     );

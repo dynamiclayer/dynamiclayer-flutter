@@ -1,3 +1,4 @@
+import 'package:dynamiclayer_flutter/src/tokens/dl_font_size.dart';
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart';
 import '../../../generated/assets.dart';
@@ -137,7 +138,7 @@ class DLBottomSheet extends StatelessWidget {
       color: Colors.transparent,
       child: SafeArea(
         top: false,
-        bottom: false, // no bottom safe-area padding strip
+        bottom: true, // no bottom safe-area padding strip
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
@@ -240,60 +241,46 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxH = MediaQuery.of(context).size.height * 0.9;
+    final maxH = (MediaQuery.of(context).size.height * 0.9);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Header (dynamic height; no fixed SizedBox)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Stack(
-            children: [
-              // Title center-aligned, with side paddings so it won't collide with the close button.
-              Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 56.0),
-                  child: Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: DLTypos.textXlSemibold(
-                      color: DLColors.black,
-                    ).copyWith(fontWeight: FontWeight.w600),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Title center-aligned, with side paddings so it won't collide with the close button.
+            SizedBox(width: 56, height: 56),
+            Padding(
+              padding: EdgeInsets.all(DLSpacing.p16),
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: DLTypos.textBaseSemibold(color: DLColors.black).copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: DlFontSize.f3,
+                ),
+              ),
+            ),
+            if (showClose)
+              InkWell(
+                onTap: () => Navigator.of(context).maybePop(),
+                child: Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.all(DLSpacing.p16),
+                  child: Image.asset(
+                    Assets.bottomSheetX,
+                    width: 24,
+                    height: 24,
+                    // fit: BoxFit.fill,
                   ),
                 ),
               ),
-              if (showClose)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: SizedBox(
-                    // keep a good tap target without fixing the whole header height
-                    width: 48,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => Navigator.of(context).maybePop(),
-                        child: Center(
-                          child: Image.asset(
-                            Assets.bottomSheetX,
-                            width: 24,
-                            height: 24,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
-
         // Middle content
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxH),
@@ -303,7 +290,7 @@ class _Body extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 24),
+                SizedBox(height: DLSpacing.p32),
                 illustration ??
                     SizedBox(
                       width: 120,
@@ -313,22 +300,33 @@ class _Body extends StatelessWidget {
                         fit: BoxFit.contain,
                       ),
                     ),
-                const SizedBox(height: 24),
-                if (showHeadline)
-                  Text(
-                    headlineText,
-                    textAlign: TextAlign.center,
-                    style: DLTypos.textLgBold(color: DLColors.black),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: DLSpacing.p16,
+                    vertical: DLSpacing.p32,
                   ),
-                if (showDescription) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    descriptionText,
-                    textAlign: TextAlign.center,
-                    style: DLTypos.textSmRegular(color: DLColors.grey600),
+                  child: Column(
+                    children: [
+                      if (showHeadline)
+                        Text(
+                          headlineText,
+                          textAlign: TextAlign.center,
+                          style: DLTypos.textXlSemibold(
+                            color: DLColors.black,
+                          ).copyWith(fontSize: DlFontSize.f5),
+                        ),
+                      if (showDescription) ...[
+                        SizedBox(height: DLSpacing.p8),
+                        Text(
+                          descriptionText,
+                          textAlign: TextAlign.center,
+                          style: DLTypos.textSmRegular(color: DLColors.grey600),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-                const SizedBox(height: 24),
+                ),
               ],
             ),
           ),
@@ -337,7 +335,12 @@ class _Body extends StatelessWidget {
         // Buttons (separator removed; height adapts to content)
         if (type != DLBottomSheetType.defaultType)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.fromLTRB(
+              DLSpacing.p16,
+              DLSpacing.p0,
+              DLSpacing.p16,
+              DLSpacing.p16,
+            ),
             child: _buildButtons(),
           ),
       ],
@@ -370,7 +373,7 @@ class _Body extends StatelessWidget {
               width: double.infinity,
               fixedWidth: true,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: DLSpacing.p16),
             DLButton(
               type: secondaryType,
               label: secondaryLabel,

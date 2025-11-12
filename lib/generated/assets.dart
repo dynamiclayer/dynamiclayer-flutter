@@ -3,11 +3,11 @@ class Assets {
   Assets._();
 
   static const String alertsAlertTriangleFilled =
-      'assets/alerts/alert_triangle_filled.png';
-  static const String alertsCircleAlert = 'assets/alerts/circle_alert.png';
-  static const String alertsCircleCheck = 'assets/alerts/circle_check.png';
-  static const String alertsCircleX = 'assets/alerts/circle_x.png';
-  static const String alertsInfo = 'assets/alerts/info.png';
+      'assets/alerts/alert-triangle-filled.svg';
+  static const String alertsCircleAlert = 'assets/alerts/circle_alert.svg';
+  static const String alertsCircleCheck = 'assets/alerts/circle_check.svg';
+  static const String alertsCircleX = 'assets/alerts/circle_x.svg';
+  static const String alertsInfo = 'assets/alerts/info.svg';
   static const String avatarAvatar = 'assets/avatar/avatar.png';
   static const String avatarAvatar1 = 'assets/avatar/avatar1.png';
   static const String avatarUser = 'assets/avatar/user.svg';

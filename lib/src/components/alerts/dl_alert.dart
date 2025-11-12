@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../dynamiclayers.dart';
 import '../../../generated/assets.dart';
 
@@ -79,7 +80,7 @@ class DLAlert extends StatelessWidget {
 
   final List<BoxShadow>? shadow;
 
-  static const double _closeHitSize = 24; // 24 icon + 16 + 16 padding
+  static const double _closeHitSize = 56; // exact 56×56 hit target
   bool get _shouldShowClose => showClose ?? close;
 
   // Inter defaults for your tokens (override if you pipe in DLTypos)
@@ -181,40 +182,36 @@ class DLAlert extends StatelessWidget {
     );
   }
 
-  // Figma PNGs
+  // SVG badge icons
   Widget _buildBadgeIcon(DLAlertType type, double size) {
     switch (type) {
       case DLAlertType.error:
-        return Image.asset(
+        return SvgPicture.asset(
           Assets.alertsCircleAlert,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
         );
       case DLAlertType.success:
-        return Image.asset(
+        return SvgPicture.asset(
           Assets.alertsCircleCheck,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
         );
       case DLAlertType.warning:
-        return Image.asset(
+        return SvgPicture.asset(
           Assets.alertsAlertTriangleFilled,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
         );
       case DLAlertType.info:
-        return Image.asset(
+        return SvgPicture.asset(
           Assets.alertsInfo,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
         );
     }
   }
@@ -350,7 +347,7 @@ class DLAlert extends StatelessWidget {
   );
 }
 
-/// Close button with exact 56×56 hit area and a 24px Figma PNG centered.
+/// Close button with exact 56×56 hit area and a 24px SVG centered.
 class _CloseButton extends StatelessWidget {
   const _CloseButton({required this.size, required this.iconSize, this.onTap});
 
@@ -370,12 +367,11 @@ class _CloseButton extends StatelessWidget {
           width: size,
           height: size,
           child: Center(
-            child: Image.asset(
+            child: SvgPicture.asset(
               Assets.alertsCircleX,
               width: iconSize,
               height: iconSize,
               fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
             ),
           ),
         ),

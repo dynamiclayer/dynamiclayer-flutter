@@ -14,7 +14,7 @@ class DemoAlertPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const _Section('Inline cards'),
+          const _Section('Inline cards, with two close button is false'),
           const SizedBox(height: 8),
           _PreviewBox(
             child: Wrap(
@@ -25,6 +25,7 @@ class DemoAlertPage extends StatelessWidget {
                   type: DLAlertType.error,
                   title: 'Headline',
                   description: _lorem,
+                  showClose: false,
                 ),
                 DynamicLayers.alert(
                   type: DLAlertType.success,
@@ -35,6 +36,7 @@ class DemoAlertPage extends StatelessWidget {
                   type: DLAlertType.warning,
                   title: 'Headline',
                   description: _lorem,
+                  showClose: false,
                 ),
                 DynamicLayers.alert(
                   type: DLAlertType.info,

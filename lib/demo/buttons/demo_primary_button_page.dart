@@ -1,19 +1,13 @@
+// lib/demo/DemoPrimaryButtonPage.dart
 import 'package:flutter/material.dart';
 import '../../dynamiclayers.dart';
 
 /// ----------------------------------------------------------------------------
 /// DemoPage – Primary Button Showcase
 /// ----------------------------------------------------------------------------
-/// What this page demonstrates:
-/// 1) Sizes (xs, sm, md, lg) across core states (normal, hover, pressed, disabled, active)
-///
-/// Notes:
-/// • This is a *demo UI only*; parent app/theme colors are used for headings.
-/// • Your DynamicLayers package must export:
-///     - DLButtonSize { xs, sm, md, lg }
-///     - DLButtonState { normal, hover, pressed, disabled, active }
-///     - DynamicLayers.buttons.primary(...)
-/// • Layout uses Wraps so it adapts for web/desktop widths.
+/// Shows sizes (xs, sm, md, lg) across core states:
+///   • Default (normal)  • Pressed  • Disabled
+/// Note: hover/active are intentionally omitted.
 /// ----------------------------------------------------------------------------
 class DemoPrimaryButtonPage extends StatelessWidget {
   const DemoPrimaryButtonPage({super.key});
@@ -31,7 +25,7 @@ class DemoPrimaryButtonPage extends StatelessWidget {
           children: [
             _SectionTitle('1) Sizes × States', textStyle: textStyle),
             const SizedBox(height: 8),
-            _SizesAndStatesGallery(),
+            const _SizesAndStatesGallery(),
           ],
         ),
       ),
@@ -43,14 +37,13 @@ class DemoPrimaryButtonPage extends StatelessWidget {
 // 1) Sizes × States
 // -----------------------------------------------------------------------------
 class _SizesAndStatesGallery extends StatelessWidget {
-  _SizesAndStatesGallery();
+  const _SizesAndStatesGallery();
 
+  // Only the three requested states.
   final List<DLButtonState> _states = const [
     DLButtonState.normal,
-    DLButtonState.hover,
     DLButtonState.pressed,
     DLButtonState.disabled,
-    DLButtonState.active,
   ];
 
   final List<_SizeRow> _sizeRows = const [
@@ -67,11 +60,10 @@ class _SizesAndStatesGallery extends StatelessWidget {
         return _GalleryRow(
           title: row.label,
           children: _states.map((st) {
-            return DynamicLayers.buttons.primary(
+            return _PrimaryButtonTile(
               label: _stateLabel(st),
               size: row.size,
               state: st,
-              onPressed: st == DLButtonState.disabled ? null : () {},
             );
           }).toList(),
         );
@@ -80,18 +72,10 @@ class _SizesAndStatesGallery extends StatelessWidget {
   }
 
   String _stateLabel(DLButtonState s) {
-    switch (s) {
-      case DLButtonState.normal:
-        return 'Default';
-      case DLButtonState.hover:
-        return 'Hover';
-      case DLButtonState.pressed:
-        return 'Pressed';
-      case DLButtonState.disabled:
-        return 'Disabled';
-      case DLButtonState.active:
-        return 'Active';
-    }
+    if (s == DLButtonState.normal) return 'Default';
+    if (s == DLButtonState.pressed) return 'Pressed';
+    if (s == DLButtonState.disabled) return 'Disabled';
+    return '';
   }
 }
 
@@ -99,6 +83,33 @@ class _SizeRow {
   const _SizeRow({required this.size, required this.label});
   final DLButtonSize size;
   final String label;
+}
+
+// A small wrapper that renders a Primary DLButton with the desired state.
+class _PrimaryButtonTile extends StatelessWidget {
+  const _PrimaryButtonTile({
+    required this.label,
+    required this.size,
+    required this.state,
+  });
+
+  final String label;
+  final DLButtonSize size;
+  final DLButtonState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDisabled = state == DLButtonState.disabled;
+
+    return DLButton(
+      type: DLButtonType.primary,
+      label: label,
+      size: size,
+      state: state, // forced state for the showcase
+      enabled: !isDisabled,
+      onPressed: isDisabled ? null : () {},
+    );
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -124,6 +135,7 @@ class _GalleryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: DLColors.white,
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
@@ -145,11 +157,14 @@ class _GalleryRow extends StatelessWidget {
               runSpacing: 10,
               children: children
                   .map(
-                    (w) =>
-                        Padding(padding: const EdgeInsets.all(4.0), child: w),
+                    (w) => const Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: SizedBox.shrink(),
+                    ),
                   )
                   .toList(),
             ),
+            Wrap(spacing: 10, runSpacing: 10, children: children),
           ],
         ),
       ),

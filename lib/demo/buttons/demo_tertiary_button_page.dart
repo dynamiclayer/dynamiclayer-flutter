@@ -1,18 +1,14 @@
+// lib/demo/buttons/demo_tertiary_button_page.dart
 import 'package:flutter/material.dart';
 import '../../dynamiclayers.dart';
 
 /// ----------------------------------------------------------------------------
 /// DemoTertiaryButtonPage – Tertiary Button Showcase
 /// ----------------------------------------------------------------------------
-/// Demonstrates:
-/// 1) Sizes (xs, sm, md, lg) × states (normal, hover, pressed, disabled, active)
-///
-/// Default tertiary spec (from component):
-/// - normal   : bg white,     fg black,   border grey-200 (1.0)
-/// - hover    : bg grey-50,   fg black,   border grey-200 (1.0)
-/// - pressed  : bg grey-200,  fg black,   border grey-200 (1.0)
-/// - disabled : bg white,     fg grey-600,border grey-100 (1.0)
-/// - active   : bg white,     fg black,   border black (1.5)
+/// Shows sizes (xs, sm, md, lg) across core states:
+///   • Default (normal)  • Pressed  • Disabled
+/// Note: hover/active are intentionally omitted in this demo.
+/// ----------------------------------------------------------------------------
 class DemoTertiaryButtonPage extends StatelessWidget {
   const DemoTertiaryButtonPage({super.key});
 
@@ -43,12 +39,11 @@ class DemoTertiaryButtonPage extends StatelessWidget {
 class _TertiarySizesAndStatesGallery extends StatelessWidget {
   const _TertiarySizesAndStatesGallery();
 
+  // Only show Default, Pressed, Disabled
   final List<DLButtonState> _states = const [
     DLButtonState.normal,
-    DLButtonState.hover,
     DLButtonState.pressed,
     DLButtonState.disabled,
-    DLButtonState.active,
   ];
 
   final List<_SizeRow> _sizeRows = const [
@@ -65,10 +60,12 @@ class _TertiarySizesAndStatesGallery extends StatelessWidget {
         return _GalleryRow(
           title: row.label,
           children: _states.map((st) {
-            return DynamicLayers.buttons.tertiary(
+            return DLButton(
+              type: DLButtonType.tertiary,
               label: _stateLabel(st),
               size: row.size,
               state: st,
+              enabled: st != DLButtonState.disabled,
               onPressed: st == DLButtonState.disabled ? null : () {},
             );
           }).toList(),
@@ -81,14 +78,14 @@ class _TertiarySizesAndStatesGallery extends StatelessWidget {
     switch (s) {
       case DLButtonState.normal:
         return 'Default';
-      case DLButtonState.hover:
-        return 'Hover';
       case DLButtonState.pressed:
         return 'Pressed';
       case DLButtonState.disabled:
         return 'Disabled';
+      // intentionally omitted:
+      case DLButtonState.hover:
       case DLButtonState.active:
-        return 'Active';
+        return '';
     }
   }
 }
@@ -100,7 +97,7 @@ class _SizeRow {
 }
 
 // -----------------------------------------------------------------------------
-// Small layout helpers (same as your other demo pages)
+// Small layout helpers
 // -----------------------------------------------------------------------------
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text, {this.textStyle});
@@ -111,9 +108,9 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+      style: (textStyle ?? Theme.of(context).textTheme.titleMedium)?.copyWith(
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 }
@@ -128,6 +125,7 @@ class _GalleryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      color: DLColors.white,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -136,13 +134,14 @@ class _GalleryRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start, // keep left-aligned
           children: [
             Opacity(
               opacity: 0.7,
               child: Text(title, style: Theme.of(context).textTheme.labelLarge),
             ),
             const SizedBox(height: 10),
+            // single Wrap (removed the placeholder/duplicate one)
             Wrap(
               spacing: 10,
               runSpacing: 10,

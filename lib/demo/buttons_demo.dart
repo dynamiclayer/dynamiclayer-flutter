@@ -36,7 +36,7 @@ class ButtonsDemoHome extends StatelessWidget {
       ),
       _DemoTile(
         title: 'Buttons — Catalog',
-        subtitle: 'Variants, sizes, disabled, icons',
+        subtitle: 'Variants, sizes, disabled,',
         builder: DemoButtonsCatalogPage.new,
       ),
     ];

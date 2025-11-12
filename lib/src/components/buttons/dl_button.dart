@@ -1,6 +1,5 @@
 // lib/src/components/buttons/dl_button.dart
 import 'package:flutter/material.dart';
-
 import '../../../dynamiclayers.dart';
 
 /// ---------------------------------------------------------------------------
@@ -8,18 +7,15 @@ import '../../../dynamiclayers.dart';
 /// ---------------------------------------------------------------------------
 /// Variants: primary | secondary | tertiary | ghost
 /// Press feedback: shows "pressed" color only while pointer is down.
-/// Label: one line, ellipsis overflow.
-/// Icons: fixed 24x24 px.
-/// Usage:
-/// DLButton(
-///   type: DLButtonType.primary, // primary | secondary | tertiary | ghost
-///   label: 'Continue',
-///   iconLeft: Icon(Icons.add),
-///   onPressed: () {},
-///   size: DLButtonSize.lg,
-///   state: DLButtonState.normal,
-/// )
-
+/// Label: one line, ellipsis overflow. Icons: fixed 24x24 px.
+/// Disabled text color rules:
+/// • primary, secondary  -> DLColors.grey600
+/// • tertiary, ghost     -> DLColors.grey500
+/// Borders:
+/// • secondary has NO border in any state
+/// Ghost update:
+/// • Always underlined (normal/pressed/disabled), per spec screenshot
+/// ---------------------------------------------------------------------------
 class DLButton extends StatefulWidget {
   const DLButton({
     super.key,
@@ -35,16 +31,20 @@ class DLButton extends StatefulWidget {
     this.size = DLButtonSize.lg,
 
     // Optional overrides (HUG by default)
-    this.width, // if null => hug
-    this.height, // if null => hug
+    this.width,
+    this.height,
     this.radius,
     this.gap,
-    this.padding, // if null => size-based padding from Figma
-    this.fixedWidth = false, // ignored unless width is provided
+    this.padding,
+    this.fixedWidth = false,
+
     // Optional affordance text
     this.affordanceTextForIcons = false,
     this.plusAffordance = ' +',
     this.ellipsisAffordance = ' …',
+
+    // External state override
+    this.state = DLButtonState.normal,
   });
 
   final DLButtonType type;
@@ -56,7 +56,6 @@ class DLButton extends StatefulWidget {
 
   final DLButtonSize size;
 
-  // By default we DO NOT set any constraints (hug). If provided, we respect them.
   final double? width;
   final double? height;
   final double? radius;
@@ -68,6 +67,8 @@ class DLButton extends StatefulWidget {
   final String plusAffordance;
   final String ellipsisAffordance;
 
+  final DLButtonState state;
+
   @override
   State<DLButton> createState() => _DLButtonState();
 }
@@ -78,52 +79,69 @@ class _DLButtonState extends State<DLButton> {
   @override
   void initState() {
     super.initState();
-    _state = widget.enabled ? DLButtonState.normal : DLButtonState.disabled;
+    _state = _deriveInitialState();
   }
 
   @override
   void didUpdateWidget(covariant DLButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.enabled != oldWidget.enabled) {
-      _state = widget.enabled ? DLButtonState.normal : DLButtonState.disabled;
+    if (widget.enabled != oldWidget.enabled ||
+        widget.state != oldWidget.state) {
+      _state = _deriveInitialState();
     }
   }
 
+  DLButtonState _deriveInitialState() {
+    if (widget.state != DLButtonState.normal) return widget.state;
+    return widget.enabled ? DLButtonState.normal : DLButtonState.disabled;
+  }
+
   bool get _interactionsAllowed =>
-      widget.enabled && _state != DLButtonState.disabled;
+      widget.onPressed != null &&
+      widget.enabled &&
+      widget.state == DLButtonState.normal &&
+      _state != DLButtonState.disabled;
 
   void _pressDown() {
     if (_interactionsAllowed) setState(() => _state = DLButtonState.pressed);
   }
 
   void _pressUpOrCancel() {
+    if (widget.state != DLButtonState.normal) return; // forced state
     if (_state == DLButtonState.pressed)
       setState(() => _state = DLButtonState.normal);
   }
 
-  // ----- Size-based padding from Figma (HUG sizing) -----
   EdgeInsetsGeometry get _padding {
     if (widget.padding != null) return widget.padding!;
     switch (widget.size) {
       case DLButtonSize.lg:
-        return const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p24,
+          vertical: DLSpacing.p16,
+        );
       case DLButtonSize.md:
-        return const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p16,
+          vertical: DLSpacing.p12,
+        );
       case DLButtonSize.sm:
-        return const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p16,
+          vertical: DLSpacing.p8,
+        );
       case DLButtonSize.xs:
-        return const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p12,
+          vertical: DLSpacing.p6,
+        );
     }
   }
 
-  // Optional corner radius & gap fallbacks (you can plug into tokens if needed)
   double get _radius => widget.radius ?? DLButtonTokens.defaultRadius;
   double get _gap => widget.gap ?? DLButtonTokens.defaultGap;
-
-  // Fixed icon size (Figma)
   double get _iconSize => 24;
 
-  // ----- Fixed colors per style (normal/pressed/disabled) -----
   Color _background() {
     if (_state == DLButtonState.disabled) {
       switch (widget.type) {
@@ -150,7 +168,16 @@ class _DLButtonState extends State<DLButton> {
   }
 
   Color _foreground() {
-    if (_state == DLButtonState.disabled) return DLColors.grey600;
+    if (_state == DLButtonState.disabled) {
+      switch (widget.type) {
+        case DLButtonType.primary:
+        case DLButtonType.secondary:
+          return DLColors.grey600;
+        case DLButtonType.tertiary:
+        case DLButtonType.ghost:
+          return DLColors.grey500;
+      }
+    }
     switch (widget.type) {
       case DLButtonType.primary:
         return Colors.white;
@@ -162,9 +189,12 @@ class _DLButtonState extends State<DLButton> {
   }
 
   Color? _borderColor() {
+    // primary, secondary, ghost => no border
     if (widget.type == DLButtonType.primary ||
-        widget.type == DLButtonType.ghost)
+        widget.type == DLButtonType.secondary ||
+        widget.type == DLButtonType.ghost) {
       return null;
+    }
     if (_state == DLButtonState.disabled) return DLColors.grey200;
     return _state == DLButtonState.pressed
         ? DLColors.grey300
@@ -175,22 +205,35 @@ class _DLButtonState extends State<DLButton> {
     switch (widget.type) {
       case DLButtonType.primary:
       case DLButtonType.ghost:
-        return 0;
       case DLButtonType.secondary:
+        return 0;
       case DLButtonType.tertiary:
         return 1;
     }
   }
 
   TextStyle _labelStyle(Color color) {
-    switch (widget.size) {
-      case DLButtonSize.xs:
-        return DLTypos.textSmSemibold(color: color);
-      case DLButtonSize.sm:
-      case DLButtonSize.md:
-      case DLButtonSize.lg:
-        return DLTypos.textBaseSemibold(color: color);
+    final base = () {
+      switch (widget.size) {
+        case DLButtonSize.xs:
+          return DLTypos.textSmSemibold(color: color);
+        case DLButtonSize.sm:
+        case DLButtonSize.md:
+        case DLButtonSize.lg:
+          return DLTypos.textBaseSemibold(color: color);
+      }
+    }();
+
+    // UPDATED: Ghost is ALWAYS underlined (normal/pressed/disabled).
+    if (widget.type == DLButtonType.ghost) {
+      return base.copyWith(
+        decoration: TextDecoration.underline,
+        decorationColor: color,
+        decorationThickness: 1,
+      );
     }
+
+    return base;
   }
 
   String get _effectiveLabel {
@@ -238,7 +281,6 @@ class _DLButtonState extends State<DLButton> {
       ],
     ];
 
-    // HUG sizing: no minWidth/minHeight constraints unless width/height provided
     Widget content = Padding(
       padding: _padding,
       child: Row(
@@ -259,12 +301,9 @@ class _DLButtonState extends State<DLButton> {
         ),
         child: content,
       );
-    } else {
-      // Ghost needs the text color but no fill; wrap to keep tap area = padding
-      content = DecoratedBox(decoration: const BoxDecoration(), child: content);
     }
+    // Ghost: keeps transparent background; padding already ensures tap area.
 
-    // Only add constraints if explicit sizing is requested.
     if (widget.width != null || widget.height != null) {
       final box = BoxConstraints(
         minWidth: widget.fixedWidth ? (widget.width ?? 0) : 0,

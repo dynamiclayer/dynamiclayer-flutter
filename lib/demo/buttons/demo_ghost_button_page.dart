@@ -1,17 +1,14 @@
+// lib/demo/buttons/demo_ghost_button_page.dart
 import 'package:flutter/material.dart';
 import '../../dynamiclayers.dart';
 
 /// ----------------------------------------------------------------------------
 /// DemoGhostButtonPage – Ghost Button Showcase
 /// ----------------------------------------------------------------------------
-/// Demonstrates:
-/// 1) Sizes (xs, sm, md, lg) × states (normal, hover, pressed, disabled, active)
-///
-/// Default ghost spec (from component):
-/// - transparent bg
-/// - underlined text (always visible)
-/// - disabled: grey500 text + lighter underline
-/// - active: bolder text + thicker underline
+/// Shows sizes (xs, sm, md, lg) across core states:
+///   • Default (normal)  • Pressed  • Disabled
+/// Note: hover/active are intentionally omitted in this demo.
+/// ----------------------------------------------------------------------------
 class DemoGhostButtonPage extends StatelessWidget {
   const DemoGhostButtonPage({super.key});
 
@@ -21,9 +18,9 @@ class DemoGhostButtonPage extends StatelessWidget {
       appBar: AppBar(title: const Text('DynamicLayers — Ghost Button Demo')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             _SectionTitle('1) Sizes × States'),
             SizedBox(height: 8),
             _GhostSizesAndStatesGallery(),
@@ -40,12 +37,11 @@ class DemoGhostButtonPage extends StatelessWidget {
 class _GhostSizesAndStatesGallery extends StatelessWidget {
   const _GhostSizesAndStatesGallery();
 
+  // Only show Default, Pressed, Disabled
   final List<DLButtonState> _states = const [
     DLButtonState.normal,
-    DLButtonState.hover,
     DLButtonState.pressed,
     DLButtonState.disabled,
-    DLButtonState.active,
   ];
 
   final List<_SizeRow> _sizeRows = const [
@@ -62,11 +58,15 @@ class _GhostSizesAndStatesGallery extends StatelessWidget {
         return _GalleryRow(
           title: row.label,
           children: _states.map((st) {
-            return DynamicLayers.buttons.ghost(
+            final isDisabled = st == DLButtonState.disabled;
+
+            return DLButton(
+              type: DLButtonType.ghost,
               label: _stateLabel(st),
               size: row.size,
-              state: st,
-              onPressed: st == DLButtonState.disabled ? null : () {},
+              state: st, // force: default/pressed/disabled
+              enabled: !isDisabled, // keep semantics/a11y correct
+              onPressed: isDisabled ? null : () {},
             );
           }).toList(),
         );
@@ -78,14 +78,14 @@ class _GhostSizesAndStatesGallery extends StatelessWidget {
     switch (s) {
       case DLButtonState.normal:
         return 'Default';
-      case DLButtonState.hover:
-        return 'Hover';
       case DLButtonState.pressed:
         return 'Pressed';
       case DLButtonState.disabled:
         return 'Disabled';
+      // intentionally omitted:
+      case DLButtonState.hover:
       case DLButtonState.active:
-        return 'Active';
+        return '';
     }
   }
 }
@@ -108,9 +108,9 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+      style: (textStyle ?? Theme.of(context).textTheme.titleMedium)?.copyWith(
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 }
@@ -125,6 +125,7 @@ class _GalleryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      color: DLColors.white,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

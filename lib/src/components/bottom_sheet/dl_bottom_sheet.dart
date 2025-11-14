@@ -1,5 +1,6 @@
 import 'package:dynamiclayer_flutter/src/tokens/dl_font_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../dynamiclayers.dart';
 import '../../../generated/assets.dart';
 
@@ -275,11 +276,15 @@ class _Body extends StatelessWidget {
                 child: Container(
                   color: Colors.transparent,
                   padding: EdgeInsets.all(DLSpacing.p16),
-                  child: Image.asset(
-                    Assets.bottomSheetX,
+                  child: SizedBox(
                     width: 24,
                     height: 24,
-                    // fit: BoxFit.fill,
+                    child: SvgPicture.asset(
+                      Assets.bottomSheetX,
+                      width: 24,
+                      height: 24,
+                      // fit: BoxFit.fill,
+                    ),
                   ),
                 ),
               ),

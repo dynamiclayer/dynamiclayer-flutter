@@ -14,7 +14,7 @@ class DLAccordion extends StatefulWidget {
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
 
     // Borders
-    this.showTopBorder = true,
+    this.showTopBorder = false,
     this.showBottomBorder = true,
 
     // Layout
@@ -214,14 +214,11 @@ class _DLAccordionState extends State<DLAccordion> {
         );
       },
       child: _expanded
-          ? Padding(
+          ? Text(
               key: const ValueKey('expanded'),
-              padding: widget.contentPadding,
-              child: Text(
-                widget.content,
-                style: _contentTextStyle,
-                softWrap: true,
-              ),
+              widget.content,
+              style: _contentTextStyle,
+              softWrap: true,
             )
           : const SizedBox.shrink(key: ValueKey('collapsed')),
     );

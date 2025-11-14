@@ -19,7 +19,7 @@ class Assets {
       'assets/bottomNavigation/unselected.svg';
   static const String bottomSheetBadgeGold =
       'assets/bottomSheet/badge-gold.png';
-  static const String bottomSheetX = 'assets/bottomSheet/x.png';
+  static const String bottomSheetX = 'assets/bottomSheet/x.svg';
   static const String iconLogo = 'assets/icon/logo.png';
   static const String iconMemoji = 'assets/icon/memoji.png';
 }

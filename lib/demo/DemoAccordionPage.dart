@@ -59,7 +59,7 @@ class _AccordionDefault extends StatelessWidget {
           borderColor: DLColors.grey200,
           borderThickness: 1.0,
           headerPadding: const EdgeInsets.symmetric(vertical: 14),
-          contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
         ),
       ),
     );
@@ -85,7 +85,7 @@ class _AccordionExpanded extends StatelessWidget {
           showTopBorder: false,
           borderThickness: 1.0,
           headerPadding: const EdgeInsets.symmetric(vertical: 14),
-          contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
         ),
       ),
     );
@@ -111,7 +111,7 @@ class _AccordionDisabled extends StatelessWidget {
           borderColor: DLColors.grey200,
           borderThickness: 1.0,
           headerPadding: const EdgeInsets.symmetric(vertical: 14),
-          contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
         ),
       ),
     );

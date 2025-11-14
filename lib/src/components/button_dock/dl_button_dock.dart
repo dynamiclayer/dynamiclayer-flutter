@@ -61,7 +61,7 @@ class DLButtonDock extends StatelessWidget {
       horizontal: DLSpacing.p16,
       vertical: DLSpacing.p16,
     ),
-    this.maxContentWidth = 600,
+    this.maxContentWidth = 800,
 
     // Horizontal behavior
     this.horizontalLastHug = true, // match mock: left fills, right hug

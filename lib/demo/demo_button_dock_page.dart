@@ -1,6 +1,6 @@
 // lib/demo/DemoButtonDockPage.dart
 import 'package:flutter/material.dart';
-import '../dynamiclayers.dart'; // exposes DLButtonDock, DlButtonDock, tokens
+import '../dynamiclayers.dart'; // exposes DLButtonDock, DLButton, tokens
 
 class DemoButtonDockPage extends StatelessWidget {
   const DemoButtonDockPage({super.key});
@@ -8,23 +8,32 @@ class DemoButtonDockPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Button Dock — 3 Variants')),
+      appBar: AppBar(title: const Text('Button Dock — Catalog')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: const [
-          _Section('1) 1 Button — Vertical (fills width)'),
+          _SectionHeader('1) 1 Button — Vertical (fills width)'),
           SizedBox(height: 8),
-          _PreviewBox(child: _OneButtonVertical()),
+          _PreviewBlock(
+            child: _OneButtonVertical(),
+            code: _oneButtonVerticalCode,
+          ),
           SizedBox(height: 24),
 
-          _Section('2) 2 Buttons — Horizontal (split 50/50)'),
+          _SectionHeader('2) 2 Buttons — Horizontal (split 50/50)'),
           SizedBox(height: 8),
-          _PreviewBox(child: _TwoButtonsHorizontal()),
+          _PreviewBlock(
+            child: _TwoButtonsHorizontal(),
+            code: _twoButtonsHorizontalCode,
+          ),
           SizedBox(height: 24),
 
-          _Section('3) 2 Buttons — Vertical (stacked full width)'),
+          _SectionHeader('3) 2 Buttons — Vertical (stacked full width)'),
           SizedBox(height: 8),
-          _PreviewBox(child: _TwoButtonsVertical()),
+          _PreviewBlock(
+            child: _TwoButtonsVertical(),
+            code: _twoButtonsVerticalCode,
+          ),
         ],
       ),
     );
@@ -96,35 +105,154 @@ class _TwoButtonsVertical extends StatelessWidget {
   }
 }
 
-/// ---------- UI helpers ----------
-class _Section extends StatelessWidget {
-  const _Section(this.title);
+/// ---------- DOC UI helpers (same pattern as DemoButtonsCatalogPage) ----------
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.title);
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 }
 
-class _PreviewBox extends StatelessWidget {
-  const _PreviewBox({required this.child});
+class _PreviewBlock extends StatelessWidget {
+  const _PreviewBlock({required this.child, required this.code});
   final Widget child;
+  final String code;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border.all(color: Colors.black12),
-        borderRadius: BorderRadius.circular(12),
+    return Column(
+      children: [
+        const _SubHeader('Preview'),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: _surface(context),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 740),
+              child: child,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        const _SubHeader('Code'),
+        const SizedBox(height: 8),
+        _CodeBox(code: code),
+      ],
+    );
+  }
+
+  BoxDecoration _surface(BuildContext context) => BoxDecoration(
+    color: Theme.of(context).colorScheme.surface,
+    border: Border.all(color: Colors.black12),
+    borderRadius: BorderRadius.circular(12),
+  );
+}
+
+class _SubHeader extends StatelessWidget {
+  const _SubHeader(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       ),
-      child: Padding(padding: const EdgeInsets.all(12), child: child),
     );
   }
 }
+
+class _CodeBox extends StatelessWidget {
+  const _CodeBox({required this.code});
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = Theme.of(context).colorScheme.surfaceVariant;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: SelectableText(
+        code,
+        style: const TextStyle(fontFamily: 'monospace', fontSize: 12.5),
+      ),
+    );
+  }
+}
+
+/// ---------- Code Samples ----------
+const _oneButtonVerticalCode = '''
+// 1) 1 Button — Vertical (fills width)
+DLButtonDock(
+  buttons: [
+    DLButton(
+      label: 'Button',
+      type: DLButtonType.primary,
+      onPressed: () {},
+    ),
+  ],
+  direction: Axis.vertical,
+  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  showSeparator: true,
+);
+''';
+
+const _twoButtonsHorizontalCode = '''
+// 2) 2 Buttons — Horizontal (split 50/50)
+DLButtonDock(
+  buttons: [
+    DLButton(
+      label: 'Button',
+      type: DLButtonType.secondary,
+      onPressed: () {},
+    ),
+    DLButton(
+      label: 'Button',
+      type: DLButtonType.primary,
+      onPressed: () {},
+    ),
+  ],
+  direction: Axis.horizontal,
+  horizontalSplitEvenly: true, // ensures 50/50 split
+  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  showSeparator: true,
+);
+''';
+
+const _twoButtonsVerticalCode = '''
+// 3) 2 Buttons — Vertical (stacked full width)
+DLButtonDock(
+  buttons: [
+    DLButton(
+      label: 'Button',
+      type: DLButtonType.primary,
+      onPressed: () {},
+    ),
+    DLButton(
+      label: 'Button',
+      type: DLButtonType.secondary,
+      onPressed: () {},
+    ),
+  ],
+  direction: Axis.vertical,
+  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  showSeparator: true,
+);
+''';

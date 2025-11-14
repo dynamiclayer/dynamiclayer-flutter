@@ -11,41 +11,49 @@ class DemoBottomSheetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bottom Sheet — Demo')),
+      appBar: AppBar(title: const Text('Bottom Sheet — Catalog')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: const [
-          _Section('Default (no buttons)'),
+          _SectionHeader('Default (no buttons)'),
           SizedBox(height: 8),
-          _PreviewBox(
+          _PreviewBlock(
             child: Wrap(
               spacing: 12,
               runSpacing: 12,
               alignment: WrapAlignment.center,
               children: [
-                _PrimaryBtn(label: 'Default', onPressed: _showDefault),
+                _PrimaryBtn(
+                  label: 'Default',
+                  onPressed: DemoBottomSheetPage._showDefault,
+                ),
               ],
             ),
+            code: _defaultBottomSheetCode,
           ),
 
           SizedBox(height: 24),
-          _Section('Single Button'),
+          _SectionHeader('Single Button'),
           SizedBox(height: 8),
-          _PreviewBox(
+          _PreviewBlock(
             child: Wrap(
               spacing: 12,
               runSpacing: 12,
               alignment: WrapAlignment.center,
               children: [
-                _PrimaryBtn(label: 'Primary action', onPressed: _showSingle),
+                _PrimaryBtn(
+                  label: 'Primary action',
+                  onPressed: DemoBottomSheetPage._showSingle,
+                ),
               ],
             ),
+            code: _singleButtonBottomSheetCode,
           ),
 
           SizedBox(height: 24),
-          _Section('Double Button'),
+          _SectionHeader('Double Button'),
           SizedBox(height: 8),
-          _PreviewBox(
+          _PreviewBlock(
             child: Wrap(
               spacing: 12,
               runSpacing: 12,
@@ -53,10 +61,11 @@ class DemoBottomSheetPage extends StatelessWidget {
               children: [
                 _PrimaryBtn(
                   label: 'Primary + Secondary',
-                  onPressed: _showDouble,
+                  onPressed: DemoBottomSheetPage._showDouble,
                 ),
               ],
             ),
+            code: _doubleButtonBottomSheetCode,
           ),
         ],
       ),
@@ -125,40 +134,142 @@ class _PrimaryBtn extends StatelessWidget {
   }
 }
 
-/// ---------- UI helpers ----------
-class _Section extends StatelessWidget {
-  const _Section(this.title);
+/// ---------- DOC UI helpers (same pattern as DemoButtonsCatalogPage) ----------
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.title);
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 }
 
-class _PreviewBox extends StatelessWidget {
-  const _PreviewBox({required this.child});
+class _PreviewBlock extends StatelessWidget {
+  const _PreviewBlock({required this.child, required this.code});
   final Widget child;
+  final String code;
 
   @override
   Widget build(BuildContext context) {
-    // Soft surface background; no borders/rounded frame.
-    return DecoratedBox(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 740),
-            child: child,
+    return Column(
+      children: [
+        const _SubHeader('Preview'),
+        SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: _surface(context),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 740),
+              child: child,
+            ),
           ),
         ),
+        const SizedBox(height: 12),
+        const _SubHeader('Code'),
+        SizedBox(height: 8),
+        _CodeBox(code: code),
+      ],
+    );
+  }
+
+  BoxDecoration _surface(BuildContext context) => BoxDecoration(
+    color: Theme.of(context).colorScheme.surface,
+    border: Border.all(color: Colors.black12),
+    borderRadius: BorderRadius.circular(12),
+  );
+}
+
+class _SubHeader extends StatelessWidget {
+  const _SubHeader(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
 }
+
+class _CodeBox extends StatelessWidget {
+  const _CodeBox({required this.code});
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = Theme.of(context).colorScheme.surfaceVariant;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: SelectableText(
+        code,
+        style: const TextStyle(fontFamily: 'monospace', fontSize: 12.5),
+      ),
+    );
+  }
+}
+
+/// ---------- Code Samples ----------
+const _defaultBottomSheetCode = '''
+// Default (no buttons)
+DLBottomSheet.show(
+  context,
+  type: DLBottomSheetType.defaultType,
+  title: 'Title',
+  showHeadline: true,
+  headlineText: 'Headline',
+  showDescription: true,
+  descriptionText: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr...',
+  isScrollControlled: false,
+);
+''';
+
+const _singleButtonBottomSheetCode = '''
+// Single button bottom sheet
+DLBottomSheet.show(
+  context,
+  type: DLBottomSheetType.singleButton,
+  title: 'Title',
+  headlineText: 'Headline',
+  descriptionText: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr...',
+  primaryLabel: 'Button',
+  primaryType: DLButtonType.primary,
+  onPrimaryPressed: () => Navigator.of(context).maybePop(),
+  isScrollControlled: false,
+);
+''';
+
+const _doubleButtonBottomSheetCode = '''
+// Double button bottom sheet
+DLBottomSheet.show(
+  context,
+  type: DLBottomSheetType.doubleButton,
+  title: 'Title',
+  headlineText: 'Headline',
+  descriptionText: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr...',
+  primaryLabel: 'Button',
+  primaryType: DLButtonType.primary,
+  onPrimaryPressed: () => Navigator.of(context).maybePop(),
+  secondaryLabel: 'Button',
+  secondaryType: DLButtonType.secondary,
+  onSecondaryPressed: () => Navigator.of(context).maybePop(),
+  isScrollControlled: true,
+);
+''';

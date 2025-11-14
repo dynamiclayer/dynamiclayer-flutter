@@ -85,7 +85,7 @@ class DLAlert extends StatelessWidget {
 
   // Inter defaults for your tokens (override if you pipe in DLTypos)
   TextStyle get _defaultTitle =>
-      (titleStyle ??
+      titleStyle ??
       const TextStyle(
         fontFamily: 'Inter',
         fontWeight: FontWeight.w600, // Semi Bold
@@ -93,10 +93,10 @@ class DLAlert extends StatelessWidget {
         height: 24 / 16, // font/line-height/3
         letterSpacing: 0.0, // font/letter-spacing/7
         color: DLColors.black,
-      ));
+      );
 
   TextStyle get _defaultDesc =>
-      (descriptionStyle ??
+      descriptionStyle ??
       const TextStyle(
         fontFamily: 'Inter',
         fontWeight: FontWeight.w400, // Regular
@@ -104,12 +104,10 @@ class DLAlert extends StatelessWidget {
         height: 24 / 16,
         letterSpacing: 0.0,
         color: DLColors.grey700,
-      ));
+      );
 
   @override
   Widget build(BuildContext context) {
-    final double leftIndent = badgeIconSize + iconTextGap;
-
     return Container(
       width: width,
       constraints: BoxConstraints(minHeight: height),
@@ -119,65 +117,57 @@ class DLAlert extends StatelessWidget {
         border: Border.all(color: borderColor, width: borderWidth),
         boxShadow: shadow,
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: verticalPadding,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Row 1: Icon + Headline + Close ────────────────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+      child: Stack(
+        children: [
+          if (_shouldShowClose)
+            Align(
+              alignment: Alignment.topRight,
+              child: _CloseButton(
+                size: _closeHitSize,
+                iconSize: closeIconSize,
+                onTap: onClose,
+              ),
+            ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: verticalPadding,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Leading badge icon
                 SizedBox(
                   width: badgeIconSize,
                   height: badgeIconSize,
                   child: leading ?? _buildBadgeIcon(type, badgeIconSize),
                 ),
                 SizedBox(width: iconTextGap),
-                // Headline centered with icon
-                Expanded(
-                  child: Text(
-                    title,
-                    style: _defaultTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (_shouldShowClose) ...[
-                  SizedBox(width: iconTextGap),
-                  _CloseButton(
-                    size: _closeHitSize,
-                    iconSize: closeIconSize,
-                    onTap: onClose,
-                  ),
-                ],
-              ],
-            ),
 
-            // ── Row 2: Indented full message (no ellipsis) ────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // indent so message aligns with headline start
-                SizedBox(width: leftIndent),
-                // message wraps fully
+                // Text wrapper (ONE column for headline + description)
                 Expanded(
-                  child: Text(
-                    description,
-                    style: _defaultDesc,
-                    softWrap: true,
-                    // no truncation:
-                    overflow: TextOverflow.visible,
+                  child: Padding(
+                    // keep text clear of the close hit area
+                    padding: EdgeInsets.only(
+                      right: _shouldShowClose ? _closeHitSize : 0,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Headline – Inter, no ellipsis, always fully visible
+                        Text(title, style: _defaultTitle, softWrap: true),
+                        SizedBox(height: titleDescriptionGap),
+                        // Description – Inter body
+                        Text(description, style: _defaultDesc, softWrap: true),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -216,7 +206,7 @@ class DLAlert extends StatelessWidget {
     }
   }
 
-  // ── Overlay helper (unchanged; still uses `close`)
+  // ── Overlay helper (unchanged; still uses `close`) ────────────────────────
   static OverlayEntry show(
     BuildContext context, {
     DLAlertType type = DLAlertType.error,

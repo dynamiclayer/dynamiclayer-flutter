@@ -23,7 +23,7 @@ class DemoAlertPage extends StatelessWidget {
               children: [
                 DynamicLayers.alert(
                   type: DLAlertType.error,
-                  title: 'Headline',
+                  title: 'Headline ',
                   description: _lorem,
                   showClose: false,
                 ),

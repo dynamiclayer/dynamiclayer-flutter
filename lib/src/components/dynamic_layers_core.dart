@@ -371,7 +371,7 @@ class _AccordionFactory {
       contentStyle: contentStyle,
       disabledTriggerStyle: disabledTriggerStyle,
       trailingChevron: trailingChevron,
-      chevronSize: chevronSize,
+
       duration: duration,
       curve: curve,
       onChanged: onChanged,

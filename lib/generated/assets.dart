@@ -2,6 +2,8 @@
 class Assets {
   Assets._();
 
+  static const String accordionAccordionChevron =
+      'assets/accordion/accordionChevron.svg';
   static const String alertsAlertTriangleFilled =
       'assets/alerts/alert-triangle-filled.svg';
   static const String alertsCircleAlert = 'assets/alerts/circle_alert.svg';

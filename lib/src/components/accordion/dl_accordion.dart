@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../dynamiclayers.dart';
+import '../../../generated/assets.dart';
 
 enum DLAccordionState { collapsed, expanded, disabled }
 
@@ -17,8 +19,9 @@ class DLAccordion extends StatefulWidget {
 
     // Layout
     this.width,
-    // header keeps exact 48 height (only L/R applied)
+    // header: horizontal padding from here, vertical via [headerVerticalPadding]
     this.headerPadding = const EdgeInsets.symmetric(horizontal: DLSpacing.p0),
+    this.headerVerticalPadding = DLSpacing.p12,
     this.contentPadding = const EdgeInsets.fromLTRB(
       DLSpacing.p0,
       DLSpacing.p12,
@@ -36,7 +39,6 @@ class DLAccordion extends StatefulWidget {
 
     // Icons
     this.trailingChevron,
-    this.chevronSize = 20,
 
     // Animation
     this.duration = const Duration(milliseconds: 180),
@@ -46,7 +48,6 @@ class DLAccordion extends StatefulWidget {
     this.onChanged,
 
     // Kept for backward compatibility; no longer used.
-    // ignore: unused_field
     this.showSeparator = false,
   });
 
@@ -61,7 +62,8 @@ class DLAccordion extends StatefulWidget {
   final bool showBottomBorder;
 
   final double? width;
-  final EdgeInsetsGeometry headerPadding; // horizontal only is applied
+  final EdgeInsetsGeometry headerPadding; // applies L/R
+  final double headerVerticalPadding;
   final EdgeInsetsGeometry contentPadding;
 
   final Color borderColor;
@@ -71,8 +73,8 @@ class DLAccordion extends StatefulWidget {
   final TextStyle? disabledTriggerStyle;
   final TextStyle? contentStyle;
 
+  /// Optional custom chevron widget (overrides default SVG).
   final Widget? trailingChevron;
-  final double chevronSize;
 
   final Duration duration;
   final Curve curve;
@@ -84,6 +86,8 @@ class DLAccordion extends StatefulWidget {
 }
 
 class _DLAccordionState extends State<DLAccordion> {
+  static const String _chevronAsset = Assets.accordionAccordionChevron;
+
   late bool _expanded;
 
   bool get _disabled => widget.state == DLAccordionState.disabled;
@@ -100,32 +104,46 @@ class _DLAccordionState extends State<DLAccordion> {
     widget.onChanged?.call(_expanded);
   }
 
+  TextStyle get _baseTriggerStyle {
+    // Inter, medium – overriding any system default
+    return (widget.triggerStyle ??
+            DLTypos.textBaseMedium(color: DLColors.black))
+        .copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w500);
+  }
+
+  TextStyle get _disabledTriggerTextStyle {
+    return (widget.disabledTriggerStyle ??
+            DLTypos.textBaseMedium(color: DLColors.grey600))
+        .copyWith(
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.lineThrough,
+        );
+  }
+
+  TextStyle get _contentTextStyle {
+    // Inter for body text as well
+    return (widget.contentStyle ??
+        DLTypos.textSmRegular(color: DLColors.grey700));
+  }
+
+  Widget _buildChevron() {
+    if (widget.trailingChevron != null) {
+      return widget.trailingChevron!;
+    }
+
+    final Color color = _disabled ? DLColors.grey600 : DLColors.black;
+
+    return SvgPicture.asset(
+      _chevronAsset,
+      width: 12,
+      height: 9,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final baseTriggerStyle =
-        (widget.triggerStyle ?? DLTypos.textBaseRegular(color: DLColors.black))
-            .copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w500);
-
-    final disabledTriggerStyle =
-        (widget.disabledTriggerStyle ??
-                DLTypos.textBaseRegular(color: DLColors.grey600))
-            .copyWith(
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w500,
-              decoration: TextDecoration.lineThrough,
-            );
-
-    final contentStyle =
-        widget.contentStyle ?? DLTypos.textSmRegular(color: DLColors.grey700);
-
-    final chevron =
-        widget.trailingChevron ??
-        Icon(
-          Icons.expand_more,
-          size: widget.chevronSize,
-          color: _disabled ? DLColors.grey600 : DLColors.black,
-        );
-
     // Resolve paddings
     final headerResolved = widget.headerPadding.resolve(
       Directionality.of(context),
@@ -135,26 +153,32 @@ class _DLAccordionState extends State<DLAccordion> {
       right: headerResolved.right,
     );
 
-    // Header (fixed 48)
+    // Header: min height 48, but grows for multi-line headline
     final header = InkWell(
       onTap: _disabled ? null : _toggle,
       splashColor: Colors.transparent,
       focusColor: Colors.transparent,
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: SizedBox(
-        height: 48,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
         child: Padding(
-          padding: headerHorizontalOnly,
+          padding: headerHorizontalOnly.add(
+            EdgeInsets.symmetric(vertical: widget.headerVerticalPadding),
+          ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Headline: allow multiple lines, no ellipsis
               Expanded(
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     widget.trigger,
-                    style: _disabled ? disabledTriggerStyle : baseTriggerStyle,
-                    overflow: TextOverflow.ellipsis,
+                    style: _disabled
+                        ? _disabledTriggerTextStyle
+                        : _baseTriggerStyle,
+                    softWrap: true,
                   ),
                 ),
               ),
@@ -163,9 +187,9 @@ class _DLAccordionState extends State<DLAccordion> {
                 duration: widget.duration,
                 curve: widget.curve,
                 child: SizedBox(
-                  width: widget.chevronSize,
-                  height: widget.chevronSize,
-                  child: Center(child: chevron),
+                  width: 12,
+                  height: 9,
+                  child: Center(child: _buildChevron()),
                 ),
               ),
             ],
@@ -174,7 +198,7 @@ class _DLAccordionState extends State<DLAccordion> {
       ),
     );
 
-    // Body (no middle separator anymore)
+    // Body (no middle separator)
     final body = AnimatedSwitcher(
       duration: widget.duration,
       switchInCurve: widget.curve,
@@ -193,12 +217,16 @@ class _DLAccordionState extends State<DLAccordion> {
           ? Padding(
               key: const ValueKey('expanded'),
               padding: widget.contentPadding,
-              child: Text(widget.content, style: contentStyle),
+              child: Text(
+                widget.content,
+                style: _contentTextStyle,
+                softWrap: true,
+              ),
             )
           : const SizedBox.shrink(key: ValueKey('collapsed')),
     );
 
-    // Only top/bottom borders remain; bottom acts as the only separator
+    // Only top + bottom borders (bottom acts as separator)
     return Container(
       width: widget.width,
       decoration: BoxDecoration(
@@ -217,13 +245,7 @@ class _DLAccordionState extends State<DLAccordion> {
           ),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          header,
-          body, // ⬅️ no middle separator
-        ],
-      ),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [header, body]),
     );
   }
 }

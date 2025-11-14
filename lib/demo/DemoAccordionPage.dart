@@ -60,7 +60,6 @@ class _AccordionDefault extends StatelessWidget {
           borderThickness: 1.0,
           headerPadding: const EdgeInsets.symmetric(vertical: 14),
           contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-          chevronSize: 20,
         ),
       ),
     );
@@ -87,7 +86,6 @@ class _AccordionExpanded extends StatelessWidget {
           borderThickness: 1.0,
           headerPadding: const EdgeInsets.symmetric(vertical: 14),
           contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-          chevronSize: 20,
         ),
       ),
     );
@@ -114,7 +112,6 @@ class _AccordionDisabled extends StatelessWidget {
           borderThickness: 1.0,
           headerPadding: const EdgeInsets.symmetric(vertical: 14),
           contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-          chevronSize: 20,
         ),
       ),
     );

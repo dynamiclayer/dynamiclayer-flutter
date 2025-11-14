@@ -250,7 +250,7 @@ class _DockFactory {
   const _DockFactory._();
 
   Widget call({
-    required List<DlButtonDock> buttons,
+    required List<DLButton> buttons,
 
     // Layout
     Axis direction = Axis.vertical,
@@ -546,7 +546,7 @@ class _AvatarGroupFactory {
 /// );
 /// ```
 Widget DLDock({
-  required List<DlButtonDock> buttons,
+  required List<DLButton> buttons,
   Axis direction = Axis.vertical,
   double gap = 0,
   EdgeInsetsGeometry padding = EdgeInsets.zero,
@@ -589,7 +589,7 @@ Widget DLDock({
 
 /// Uppercase alias if you prefer `DLDOCK(...)`.
 Widget DLDOCK({
-  required List<DlButtonDock> buttons,
+  required List<DLButton> buttons,
   Axis direction = Axis.vertical,
   double gap = 0,
   EdgeInsetsGeometry padding = EdgeInsets.zero,

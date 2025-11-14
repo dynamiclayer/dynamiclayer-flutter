@@ -101,7 +101,7 @@ class DemoBottomSheetPage extends StatelessWidget {
     secondaryLabel: 'Button',
     secondaryType: DLButtonType.secondary,
     onSecondaryPressed: () => Navigator.of(context).maybePop(),
-    isScrollControlled: false,
+    isScrollControlled: true,
   );
 }
 

@@ -39,11 +39,7 @@ class _OneButtonVertical extends StatelessWidget {
   Widget build(BuildContext context) {
     return DLButtonDock(
       buttons: [
-        DlButtonDock(
-          label: 'Button',
-          type: DLButtonType.primary,
-          onPressed: () {},
-        ),
+        DLButton(label: 'Button', type: DLButtonType.primary, onPressed: () {}),
       ],
       direction: Axis.vertical,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -60,16 +56,12 @@ class _TwoButtonsHorizontal extends StatelessWidget {
   Widget build(BuildContext context) {
     return DLButtonDock(
       buttons: [
-        DlButtonDock(
+        DLButton(
           label: 'Button',
           type: DLButtonType.secondary,
           onPressed: () {},
         ),
-        DlButtonDock(
-          label: 'Button',
-          type: DLButtonType.primary,
-          onPressed: () {},
-        ),
+        DLButton(label: 'Button', type: DLButtonType.primary, onPressed: () {}),
       ],
       direction: Axis.horizontal,
       // Force equal width
@@ -90,12 +82,8 @@ class _TwoButtonsVertical extends StatelessWidget {
   Widget build(BuildContext context) {
     return DLButtonDock(
       buttons: [
-        DlButtonDock(
-          label: 'Button',
-          type: DLButtonType.primary,
-          onPressed: () {},
-        ),
-        DlButtonDock(
+        DLButton(label: 'Button', type: DLButtonType.primary, onPressed: () {}),
+        DLButton(
           label: 'Button',
           type: DLButtonType.secondary,
           onPressed: () {},

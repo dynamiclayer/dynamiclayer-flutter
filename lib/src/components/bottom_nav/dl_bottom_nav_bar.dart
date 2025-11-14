@@ -10,8 +10,8 @@ import '../../../dynamiclayers.dart';
 /// • Optional iOS-like home indicator (with its own vertical space)
 /// • SafeArea-aware, with extra bottom padding for the home indicator
 /// ---------------------------------------------------------------------------
-class DLBottomNavBar extends StatelessWidget {
-  const DLBottomNavBar({
+class DLBottomNavigation extends StatelessWidget {
+  const DLBottomNavigation({
     super.key,
     required this.items, // 2..5 tabs
     this.backgroundColor = DLColors.white,

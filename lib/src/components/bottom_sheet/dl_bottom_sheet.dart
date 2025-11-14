@@ -137,7 +137,7 @@ class DLBottomSheet extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: SafeArea(
-        top: false,
+        top: true,
         bottom: true, // no bottom safe-area padding strip
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 150),
@@ -252,16 +252,20 @@ class _Body extends StatelessWidget {
           children: [
             // Title center-aligned, with side paddings so it won't collide with the close button.
             SizedBox(width: 56, height: 56),
-            Padding(
-              padding: EdgeInsets.all(DLSpacing.p16),
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: DLTypos.textBaseSemibold(color: DLColors.black).copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: DlFontSize.f3,
+            SizedBox(
+              width: (MediaQuery.of(context).size.width) - (2 * 56),
+              child: Padding(
+                padding: EdgeInsets.all(DLSpacing.p16),
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: DLTypos.textBaseSemibold(color: DLColors.black)
+                      .copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: DlFontSize.f3,
+                      ),
                 ),
               ),
             ),

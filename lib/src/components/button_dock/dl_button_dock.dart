@@ -57,7 +57,10 @@ class DLButtonDock extends StatelessWidget {
     this.direction = Axis.vertical,
     this.verticalGap = DLSpacing.p16, // p16
     this.horizontalGap = DLSpacing.p16, // p16
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    this.padding = const EdgeInsets.symmetric(
+      horizontal: DLSpacing.p16,
+      vertical: DLSpacing.p16,
+    ),
     this.maxContentWidth = 600,
 
     // Horizontal behavior
@@ -76,7 +79,7 @@ class DLButtonDock extends StatelessWidget {
     this.useSafeArea = true,
   });
 
-  final List<DlButtonDock> buttons;
+  final List<DLButton> buttons;
   final Axis direction;
 
   // GAP controls (per spec)
@@ -154,7 +157,7 @@ class DLButtonDock extends StatelessWidget {
   }
 
   // Horizontal layout with exact gaps
-  Widget _row(List<DlButtonDock> items) {
+  Widget _row(List<DLButton> items) {
     if (items.isEmpty) return const SizedBox.shrink();
 
     // 50/50 split override
@@ -190,7 +193,7 @@ class DLButtonDock extends StatelessWidget {
   }
 
   // Vertical layout: stretch each to full width, gap p16
-  Widget _column(List<DlButtonDock> items) {
+  Widget _column(List<DLButton> items) {
     final children = <Widget>[];
     for (var i = 0; i < items.length; i++) {
       children.add(
@@ -202,7 +205,7 @@ class DLButtonDock extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.min, children: children);
   }
 
-  Widget _dockButton(DlButtonDock b) {
+  Widget _dockButton(DLButton b) {
     return DynamicLayers.buttons(
       type: b.type,
       label: b.label,
@@ -215,10 +218,6 @@ class DLButtonDock extends StatelessWidget {
       width: b.width,
       height: b.height,
       padding: b.padding,
-      backgroundColor: b.backgroundColor,
-      foregroundColor: b.foregroundColor,
-      borderColor: b.borderColor,
-      borderWidth: b.borderWidth,
       fixedWidth: b.fixedWidth,
     );
   }

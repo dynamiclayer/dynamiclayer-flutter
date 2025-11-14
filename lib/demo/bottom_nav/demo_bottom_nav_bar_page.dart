@@ -88,13 +88,12 @@ class _BarPreviewState extends State<_BarPreview> {
     final items = List<Widget>.generate(widget.count, (i) {
       return _tab(
         label: 'Label',
-        selected: true,
-        // i == _selectedIndex,
+        selected: i == _selectedIndex,
         onTap: () => setState(() => _selectedIndex = i),
       );
     });
 
-    return DLBottomNavBar(
+    return DLBottomNavigation(
       items: items,
       showSeparator: true,
       elevation: 0,

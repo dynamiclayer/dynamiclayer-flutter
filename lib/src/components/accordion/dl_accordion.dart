@@ -214,11 +214,14 @@ class _DLAccordionState extends State<DLAccordion> {
         );
       },
       child: _expanded
-          ? Text(
-              key: const ValueKey('expanded'),
-              widget.content,
-              style: _contentTextStyle,
-              softWrap: true,
+          ? Padding(
+              padding: EdgeInsets.only(bottom: DLSpacing.p12),
+              child: Text(
+                key: const ValueKey('expanded'),
+                widget.content,
+                style: _contentTextStyle,
+                softWrap: true,
+              ),
             )
           : const SizedBox.shrink(key: ValueKey('collapsed')),
     );

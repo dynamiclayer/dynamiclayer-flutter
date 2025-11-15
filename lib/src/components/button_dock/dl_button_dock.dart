@@ -113,7 +113,7 @@ class DLButtonDock extends StatelessWidget {
         top: false,
         left: useSafeArea,
         right: useSafeArea,
-        bottom: useSafeArea,
+        bottom: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

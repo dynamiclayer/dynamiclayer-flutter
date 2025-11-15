@@ -20,11 +20,11 @@ class DLAccordion extends StatefulWidget {
     // Layout
     this.width,
     // header: horizontal padding from here, vertical via [headerVerticalPadding]
-    this.headerPadding = const EdgeInsets.symmetric(horizontal: DLSpacing.p0),
+    this.headerPadding = const EdgeInsets.symmetric(horizontal: 14),
     this.headerVerticalPadding = DLSpacing.p12,
     this.contentPadding = const EdgeInsets.fromLTRB(
       DLSpacing.p0,
-      DLSpacing.p12,
+      DLSpacing.p0,
       DLSpacing.p0,
       DLSpacing.p12,
     ),
@@ -220,6 +220,7 @@ class _DLAccordionState extends State<DLAccordion> {
                 key: const ValueKey('expanded'),
                 widget.content,
                 style: _contentTextStyle,
+                textAlign: TextAlign.left,
                 softWrap: true,
               ),
             )

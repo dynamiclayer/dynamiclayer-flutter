@@ -77,7 +77,7 @@ class _AvatarGrid extends StatelessWidget {
         // Type: icon
         tile(
           'icon · $sizeLabel',
-          DynamicLayers.avatar(
+          DLAvatar(
             type: DLAvatarType.icon,
             size: size,
             presence: presence,
@@ -88,7 +88,7 @@ class _AvatarGrid extends StatelessWidget {
         // Type: initials
         tile(
           'initials · $sizeLabel',
-          DynamicLayers.avatar(
+          DLAvatar(
             type: DLAvatarType.initials,
             size: size,
             presence: presence,
@@ -100,7 +100,7 @@ class _AvatarGrid extends StatelessWidget {
         // Type: image (with subtle lavender ring to match mock)
         tile(
           'image · $sizeLabel',
-          DynamicLayers.avatar(
+          DLAvatar(
             type: DLAvatarType.image,
             size: size,
             presence: presence,

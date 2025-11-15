@@ -53,7 +53,7 @@ class _AlertErrorNoClose extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicLayers.alert(
+    return DLAlert(
       type: DLAlertType.error,
       title: 'Headline',
       description: DemoAlertPage._lorem,
@@ -67,7 +67,7 @@ class _AlertSuccess extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicLayers.alert(
+    return DLAlert(
       type: DLAlertType.success,
       title: 'Headline',
       description: DemoAlertPage._lorem,
@@ -81,7 +81,7 @@ class _AlertWarningNoClose extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicLayers.alert(
+    return DLAlert(
       type: DLAlertType.warning,
       title: 'Headline',
       description: DemoAlertPage._lorem,
@@ -95,7 +95,7 @@ class _AlertInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicLayers.alert(
+    return DLAlert(
       type: DLAlertType.info,
       title: 'Headline',
       description: DemoAlertPage._lorem,
@@ -204,7 +204,7 @@ Wrap(
   runSpacing: 16,
   children: [
     // Error (close hidden)
-    DynamicLayers.alert(
+    DLAlert(
       type: DLAlertType.error,
       title: 'Headline',
       description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
@@ -212,14 +212,14 @@ Wrap(
     ),
 
     // Success (close visible — default)
-    DynamicLayers.alert(
+   DLAlert(
       type: DLAlertType.success,
       title: 'Headline',
       description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
     ),
 
     // Warning (close hidden)
-    DynamicLayers.alert(
+    DLAlert(
       type: DLAlertType.warning,
       title: 'Headline',
       description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
@@ -227,7 +227,7 @@ Wrap(
     ),
 
     // Info (close visible — default)
-    DynamicLayers.alert(
+    DLAlert(
       type: DLAlertType.info,
       title: 'Headline',
       description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',

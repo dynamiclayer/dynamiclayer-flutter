@@ -17,9 +17,9 @@ class DLBottomSheet extends StatelessWidget {
 
     // Content toggles + text
     this.showHeadline = true,
-    this.headlineText = 'Headline',
+    this.headline = 'Headline',
     this.showDescription = true,
-    this.descriptionText =
+    this.description =
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore.',
 
     // Illustration
@@ -48,9 +48,9 @@ class DLBottomSheet extends StatelessWidget {
 
   // Content
   final bool showHeadline;
-  final String headlineText;
+  final String headline;
   final bool showDescription;
-  final String descriptionText;
+  final String description;
 
   // Illustration
   final Widget? illustration;
@@ -115,9 +115,9 @@ class DLBottomSheet extends StatelessWidget {
         showClose: showClose,
         title: title,
         showHeadline: showHeadline,
-        headlineText: headlineText,
+        headline: headlineText,
         showDescription: showDescription,
-        descriptionText: descriptionText,
+        description: descriptionText,
         illustration: illustration,
         primaryLabel: primaryLabel,
         onPrimaryPressed: onPrimaryPressed,
@@ -182,9 +182,9 @@ class DLBottomSheet extends StatelessWidget {
             showClose: showClose,
             title: title,
             showHeadline: showHeadline,
-            headlineText: headlineText,
+            headlineText: headline,
             showDescription: showDescription,
-            descriptionText: descriptionText,
+            descriptionText: description,
             illustration: illustration,
             primaryLabel: primaryLabel,
             onPrimaryPressed: onPrimaryPressed,
@@ -277,8 +277,8 @@ class _Body extends StatelessWidget {
                   color: Colors.transparent,
                   padding: EdgeInsets.all(DLSpacing.p16),
                   child: SizedBox(
-                    width: 24,
-                    height: 24,
+                    width: 16,
+                    height: 16,
                     child: SvgPicture.asset(
                       Assets.bottomSheetX,
                       width: 24,

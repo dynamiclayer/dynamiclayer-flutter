@@ -70,4 +70,17 @@ class DLColors {
   static const violet800 = Color(0xFF5718BF);
   static const violet900 = Color(0xFF48169C);
   static const violet950 = Color(0xFF2C086A);
+
+  // Blue
+  static const blue50 = Color(0xFFEDF4FF);
+  static const blue100 = Color(0xFFD6F1FF);
+  static const blue200 = Color(0xFFA0BFF9);
+  static const blue300 = Color(0xFF83DCFF);
+  static const blue400 = Color(0xFF48C7FF);
+  static const blue500 = Color(0xFF1EA7FF);
+  static const blue600 = Color(0xFF0689FF);
+  static const blue700 = Color(0xFF0075FF);
+  static const blue800 = Color(0xFF0859C5);
+  static const blue900 = Color(0xFF0D4E9B);
+  static const blue950 = Color(0xFF0E305D);
 }

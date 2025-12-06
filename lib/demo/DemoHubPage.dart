@@ -11,7 +11,27 @@ import 'bottom_nav/demo_bottom_nav_bar_page.dart';
 import 'bottom_nav/demo_bottom_nav_tab_page.dart';
 import 'buttons_demo.dart'; // ButtonsDemoHome
 import 'demo_bottom_sheet_page.dart';
-import 'demo_button_dock_page.dart'; // DemoButtonDockPage
+import 'demo_button_dock_page.dart';
+import 'demo_calendar_page.dart';
+import 'demo_card_page.dart';
+import 'demo_checkbox_page.dart';
+import 'demo_chip_page.dart';
+import 'demo_coach_mark_page.dart';
+import 'demo_icon_button_page.dart';
+import 'demo_input_field_page.dart';
+import 'demo_input_otp_page.dart';
+import 'demo_line_item_message_page.dart';
+import 'demo_line_item_page.dart';
+import 'demo_loading_button_page.dart';
+import 'demo_loading_dots_page.dart';
+import 'demo_message_dock_page.dart';
+import 'demo_message_loading_page.dart';
+import 'demo_message_page.dart';
+import 'demo_pagination_page.dart';
+import 'demo_pin_keyboard_page.dart';
+import 'demo_radio_button_page.dart';
+import 'demo_switch_page.dart';
+import 'demo_timed_button_page.dart'; // DemoButtonDockPage
 
 /// Central hub to open any demo screen — now responsive & polished.
 class DemoHubPage extends StatefulWidget {
@@ -26,6 +46,106 @@ class _DemoHubPageState extends State<DemoHubPage> {
   String _query = '';
 
   List<_DemoEntry> get _entries => <_DemoEntry>[
+    _DemoEntry(
+      title: 'Input',
+      subtitle: '39 variants',
+      builder: DemoInputFieldPage.new,
+    ),
+    _DemoEntry(
+      title: 'Line Item',
+      subtitle: 'including Checkbox, Radio Button, Switch, Button, Seperator',
+      builder: DemoLineItemPage.new,
+    ),
+    _DemoEntry(
+      title: 'Line Item Messgae',
+      subtitle: 'inc. Seperator, avatar, avatar group, badge',
+      builder: DemoLineItemMessagePage.new,
+    ),
+    _DemoEntry(
+      title: 'Input OTP',
+      subtitle: 'Visual state of a single OTP cell',
+      builder: DemoInputOtpPage.new,
+    ),
+    _DemoEntry(
+      title: 'Coach Mark',
+      subtitle: 'top,bottom,left right',
+      builder: DemoCoachMarkPage.new,
+    ),
+    _DemoEntry(
+      title: 'Message Dock',
+      subtitle: 'default, active',
+      builder: DemoMessageDockPage.new,
+    ),
+    _DemoEntry(
+      title: 'Message loading',
+      subtitle: 'dot, loading',
+      builder: DemoMessageLoadingPage.new,
+    ),
+    _DemoEntry(
+      title: 'Message',
+      subtitle: 'other /own, single/ response',
+      builder: DemoMessagePage.new,
+    ),
+    _DemoEntry(
+      title: 'Switch',
+      subtitle: 'Default, active',
+      builder: DemoSwitchPage.new,
+    ),
+    _DemoEntry(
+      title: 'Pagination',
+      subtitle: 'Dot, Pagination',
+      builder: DemoPaginationPage.new,
+    ),
+    _DemoEntry(
+      title: 'Pin Keyboard',
+      subtitle: 'text, Icon',
+      builder: DemoPinKeyboardPage.new,
+    ),
+    _DemoEntry(
+      title: 'Chip',
+      subtitle: 'Default, active, disable',
+      builder: DemoChipPage.new,
+    ),
+    _DemoEntry(
+      title: 'Radio Button',
+      subtitle: 'Default, active, disable',
+      builder: DemoRadioButtonPage.new,
+    ),
+    _DemoEntry(
+      title: 'Calender',
+      subtitle: 'Default, Calender item',
+      builder: DemoCalendarPage.new,
+    ),
+    _DemoEntry(
+      title: 'Checkbox',
+      subtitle: 'Default, Active, Disabled',
+      builder: DemoCheckboxPage.new,
+    ),
+    _DemoEntry(
+      title: 'Card  — Catalog & Variants',
+      subtitle: 'Default, Active, Disabled',
+      builder: DemoCardPage.new,
+    ),
+    _DemoEntry(
+      title: 'Buttons Icon — Catalog & Variants',
+      subtitle: 'Primary / Secondary / Tertiary  sizes, states, icons',
+      builder: DemoIconButtonPage.new,
+    ),
+    _DemoEntry(
+      title: 'Buttons Loading — Catalog & Variants',
+      subtitle: 'Primary / Secondary / Tertiary / Ghost,  sizes, states, icons',
+      builder: DemoLoadingButtonPage.new,
+    ),
+    _DemoEntry(
+      title: 'Loading Dots',
+      subtitle: 'Animation',
+      builder: DemoLoadingDotsPage.new,
+    ),
+    _DemoEntry(
+      title: 'Buttons Timed — Catalog & Variants',
+      subtitle: 'Timer goes down, Animation',
+      builder: DemoTimedButtonPage.new,
+    ),
     _DemoEntry(
       title: 'Buttons — Catalog & Variants',
       subtitle: 'Primary / Secondary / Tertiary / Ghost, sizes, states, icons',
@@ -410,5 +530,6 @@ IconData _inferIcon(String title) {
   if (t.contains('bottom nav tab')) return Icons.tab_outlined;
   if (t.contains('bottom navigation')) return Icons.explore_outlined;
   if (t.contains('bottom sheet')) return Icons.vertical_align_top_outlined;
+  if (t.contains('Calender')) return Icons.calendar_month;
   return Icons.widgets_outlined;
 }

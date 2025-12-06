@@ -22,4 +22,8 @@ class Assets {
   static const String bottomSheetX = 'assets/bottomSheet/x.svg';
   static const String iconLogo = 'assets/icon/logo.png';
   static const String iconMemoji = 'assets/icon/memoji.png';
+  static const String lineItemArrowFarword =
+      'assets/line_item/arrow_farword.svg';
+  static const String pinkeyboardArrowBack =
+      'assets/pinkeyboard/arrow_back.svg';
 }

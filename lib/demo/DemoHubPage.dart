@@ -50,156 +50,187 @@ class _DemoHubPageState extends State<DemoHubPage> {
       title: 'Input',
       subtitle: '39 variants',
       builder: DemoInputFieldPage.new,
+      icon: Icons.text_fields_outlined,
     ),
     _DemoEntry(
       title: 'Line Item',
       subtitle: 'including Checkbox, Radio Button, Switch, Button, Seperator',
       builder: DemoLineItemPage.new,
+      icon: Icons.list_alt_outlined,
     ),
     _DemoEntry(
       title: 'Line Item Messgae',
       subtitle: 'inc. Seperator, avatar, avatar group, badge',
       builder: DemoLineItemMessagePage.new,
+      icon: Icons.chat_bubble_outline,
     ),
     _DemoEntry(
       title: 'Input OTP',
       subtitle: 'Visual state of a single OTP cell',
       builder: DemoInputOtpPage.new,
+      icon: Icons.password_outlined,
     ),
     _DemoEntry(
       title: 'Coach Mark',
       subtitle: 'top,bottom,left right',
       builder: DemoCoachMarkPage.new,
+      icon: Icons.tour_outlined,
     ),
     _DemoEntry(
       title: 'Message Dock',
       subtitle: 'default, active',
       builder: DemoMessageDockPage.new,
+      icon: Icons.message_outlined,
     ),
     _DemoEntry(
       title: 'Message loading',
       subtitle: 'dot, loading',
       builder: DemoMessageLoadingPage.new,
+      icon: Icons.pending_outlined,
     ),
     _DemoEntry(
       title: 'Message',
       subtitle: 'other /own, single/ response',
       builder: DemoMessagePage.new,
+      icon: Icons.chat_outlined,
     ),
     _DemoEntry(
       title: 'Switch',
       subtitle: 'Default, active',
       builder: DemoSwitchPage.new,
+      icon: Icons.toggle_on_outlined,
     ),
     _DemoEntry(
       title: 'Pagination',
       subtitle: 'Dot, Pagination',
       builder: DemoPaginationPage.new,
+      icon: Icons.more_horiz_outlined,
     ),
     _DemoEntry(
       title: 'Pin Keyboard',
       subtitle: 'text, Icon',
       builder: DemoPinKeyboardPage.new,
+      icon: Icons.dialpad,
     ),
     _DemoEntry(
       title: 'Chip',
       subtitle: 'Default, active, disable',
       builder: DemoChipPage.new,
+      icon: Icons.sell_outlined,
     ),
     _DemoEntry(
       title: 'Radio Button',
       subtitle: 'Default, active, disable',
       builder: DemoRadioButtonPage.new,
+      icon: Icons.radio_button_checked_outlined,
     ),
     _DemoEntry(
       title: 'Calender',
       subtitle: 'Default, Calender item',
       builder: DemoCalendarPage.new,
+      icon: Icons.calendar_today_outlined,
     ),
     _DemoEntry(
       title: 'Checkbox',
       subtitle: 'Default, Active, Disabled',
       builder: DemoCheckboxPage.new,
+      icon: Icons.check_box_outlined,
     ),
     _DemoEntry(
       title: 'Card  — Catalog & Variants',
       subtitle: 'Default, Active, Disabled',
       builder: DemoCardPage.new,
+      icon: Icons.credit_card_outlined,
     ),
     _DemoEntry(
       title: 'Buttons Icon — Catalog & Variants',
       subtitle: 'Primary / Secondary / Tertiary  sizes, states, icons',
       builder: DemoIconButtonPage.new,
+      icon: Icons.smart_button,
     ),
     _DemoEntry(
       title: 'Buttons Loading — Catalog & Variants',
       subtitle: 'Primary / Secondary / Tertiary / Ghost,  sizes, states, icons',
       builder: DemoLoadingButtonPage.new,
+      icon: Icons.hourglass_top_outlined,
     ),
     _DemoEntry(
       title: 'Loading Dots',
       subtitle: 'Animation',
       builder: DemoLoadingDotsPage.new,
+      icon: Icons.more_horiz_rounded,
     ),
     _DemoEntry(
       title: 'Buttons Timed — Catalog & Variants',
       subtitle: 'Timer goes down, Animation',
       builder: DemoTimedButtonPage.new,
+      icon: Icons.schedule_outlined,
     ),
     _DemoEntry(
       title: 'Buttons — Catalog & Variants',
       subtitle: 'Primary / Secondary / Tertiary / Ghost, sizes, states, icons',
       builder: ButtonsDemoHome.new,
+      icon: Icons.smart_button_outlined,
     ),
     _DemoEntry(
       title: 'Button Dock — Sticky Actions',
       subtitle: 'Always-visible 1–N actions, horizontal/vertical, separator',
       builder: DemoButtonDockPage.new,
+      icon: Icons.space_bar,
     ),
     _DemoEntry(
       title: 'Separator Demo',
       subtitle: 'Vertical and horizontal',
       builder: DemoSeparatorPage.new,
+      icon: Icons.straighten_outlined,
     ),
     _DemoEntry(
       title: 'Accordion Demo',
       subtitle: 'Default, expanded, disabled',
       builder: DemoAccordionPage.new,
+      icon: Icons.view_agenda_outlined,
     ),
     _DemoEntry(
       title: 'Alert Demo',
       subtitle: 'Error, success, warning, info + overlay helper',
       builder: DemoAlertPage.new,
+      icon: Icons.notification_important_outlined,
     ),
     _DemoEntry(
       title: 'Bottom Sheet Demo',
       subtitle: 'Default, Single Button, Double Button',
       builder: DemoBottomSheetPage.new,
+      icon: Icons.vertical_align_top_outlined,
     ),
     _DemoEntry(
       title: 'Badge Demo',
       subtitle: 'Standalone counts and anchored dots',
       builder: DemoBadgePage.new,
+      icon: Icons.brightness_1_outlined,
     ),
     _DemoEntry(
       title: 'Avatar Demo',
       subtitle: 'Initials, image, presence',
       builder: DemoAvatarPage.new,
+      icon: Icons.account_circle_outlined,
     ),
     _DemoEntry(
       title: 'Avatar Group Demo',
       subtitle: 'Row & diagonal with counter',
       builder: DemoAvatarGroupPage.new,
+      icon: Icons.group_outlined,
     ),
     _DemoEntry(
       title: 'Bottom Nav Tab Demo',
       subtitle: 'Label, icon, badge, disabled',
       builder: DemoBottomNavTabPage.new,
+      icon: Icons.tab_outlined,
     ),
     _DemoEntry(
       title: 'Bottom Navigation Demo',
       subtitle: '2 / 3 / 4 tabs with labels',
       builder: DemoBottomNavBarPage.new,
+      icon: Icons.explore_outlined,
     ),
   ];
 
@@ -212,10 +243,13 @@ class _DemoHubPageState extends State<DemoHubPage> {
   List<_DemoEntry> _filtered(List<_DemoEntry> all) {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return all;
-    return all.where((e) {
-      return e.title.toLowerCase().contains(q) ||
-          e.subtitle.toLowerCase().contains(q);
-    }).toList();
+    return all
+        .where(
+          (e) =>
+              e.title.toLowerCase().contains(q) ||
+              e.subtitle.toLowerCase().contains(q),
+        )
+        .toList();
   }
 
   @override
@@ -530,6 +564,8 @@ IconData _inferIcon(String title) {
   if (t.contains('bottom nav tab')) return Icons.tab_outlined;
   if (t.contains('bottom navigation')) return Icons.explore_outlined;
   if (t.contains('bottom sheet')) return Icons.vertical_align_top_outlined;
-  if (t.contains('Calender')) return Icons.calendar_month;
+  if (t.contains('calender') || t.contains('calendar')) {
+    return Icons.calendar_month;
+  }
   return Icons.widgets_outlined;
 }

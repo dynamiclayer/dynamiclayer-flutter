@@ -1,3 +1,4 @@
+// lib/demo/demo_card_page.dart
 import 'package:flutter/material.dart';
 import '../dynamiclayers.dart';
 import '../src/components/card/dl_card.dart';
@@ -28,17 +29,12 @@ class DemoCardPage extends StatelessWidget {
   }
 }
 
-/// ---------------------------------------------------------------------------
-/// Preview content (what you see in the screenshot)
-/// ---------------------------------------------------------------------------
-
 class _CardsPreview extends StatelessWidget {
   const _CardsPreview();
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
         _CardRow(size: DLCardSize.md),
@@ -61,7 +57,6 @@ class _CardRow extends StatelessWidget {
     return Wrap(
       spacing: spacing,
       runSpacing: spacing,
-      alignment: WrapAlignment.start,
       children: [
         _DemoCard(size: size, state: DLCardState.normal),
         _DemoCard(size: size, state: DLCardState.active),
@@ -79,24 +74,16 @@ class _DemoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Demo width ~ Figma (slightly wider to avoid text overflow).
-    return SizedBox(
-      width: 180,
-      child: DLCard(
-        size: size,
-        state: state,
-        title: 'Title',
-        description: 'Description',
-        icon: const Icon(Icons.crop_free, size: 24),
-        onTap: state == DLCardState.disabled ? null : () {},
-      ),
+    return DLCard(
+      size: size,
+      state: state,
+      title: 'Title',
+      description: 'Description',
+      icon: const Icon(Icons.crop_free), // will be forced to 24 via IconTheme
+      onTap: state == DLCardState.disabled ? null : () {},
     );
   }
 }
-
-/// ---------------------------------------------------------------------------
-/// Section header + preview block (preview + code)
-/// ---------------------------------------------------------------------------
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader(this.title);
@@ -151,23 +138,15 @@ class _PreviewBlock extends StatelessWidget {
   }
 }
 
-/// ---------------------------------------------------------------------------
-/// "How to use" code snippet
-/// ---------------------------------------------------------------------------
-
 const String _cardUsageCode = '''
-// Import
 import 'package:dynamiclayers/dynamiclayers.dart';
 
-// Usage
 DLCard(
-  size: DLCardSize.md,            // or DLCardSize.lg
-  state: DLCardState.normal,      // normal, active, disabled
+  size: DLCardSize.md,
+  state: DLCardState.normal, // normal, active, disabled
   title: 'Title',
   description: 'Description',
-  icon: Icon(Icons.crop_free),    // any 24x24 icon
-  onTap: () {
-    // Handle tap here
-  },
+  icon: Icon(Icons.crop_free), // 24x24 via IconTheme in DLCard
+  onTap: () {},
 );
 ''';

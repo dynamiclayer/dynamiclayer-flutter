@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import '../../dynamiclayers.dart';
-import '../../generated/assets.dart';
 
 class DemoBottomNavTabPage extends StatelessWidget {
   const DemoBottomNavTabPage({super.key});
 
-  Widget _cell({
+  Widget _tile({
     required bool showLabel,
     required bool selected,
     required DLBnavBadge badge,
     int badgeCount = 1,
   }) {
-    return Center(
-      child: DLBottomNavTab(
-        label: 'Label',
-        showLabel: showLabel,
-        selected: selected,
-        badge: badge,
-        badgeCount: badgeCount,
-        selectedColor: DLColors.black,
-        unselectedColor: DLColors.grey400,
+    return SizedBox(
+      width: 160,
+      height: 84, // stable height for icon + optional label + spacing
+      child: Center(
+        child: DLBottomNavTab(
+          label: 'Label',
+          showLabel: showLabel,
+          selected: selected,
+          badge: badge,
+          badgeCount: badgeCount,
+          selectedColor: DLColors.black,
+          unselectedColor: DLColors.grey400,
+        ),
       ),
     );
   }
@@ -28,9 +31,9 @@ class DemoBottomNavTabPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = <Widget>[
       // Label=true, Selected=true
-      _cell(showLabel: true, selected: true, badge: DLBnavBadge.none),
-      _cell(showLabel: true, selected: true, badge: DLBnavBadge.sm),
-      _cell(
+      _tile(showLabel: true, selected: true, badge: DLBnavBadge.none),
+      _tile(showLabel: true, selected: true, badge: DLBnavBadge.sm),
+      _tile(
         showLabel: true,
         selected: true,
         badge: DLBnavBadge.md,
@@ -38,9 +41,9 @@ class DemoBottomNavTabPage extends StatelessWidget {
       ),
 
       // Label=false, Selected=true
-      _cell(showLabel: false, selected: true, badge: DLBnavBadge.none),
-      _cell(showLabel: false, selected: true, badge: DLBnavBadge.sm),
-      _cell(
+      _tile(showLabel: false, selected: true, badge: DLBnavBadge.none),
+      _tile(showLabel: false, selected: true, badge: DLBnavBadge.sm),
+      _tile(
         showLabel: false,
         selected: true,
         badge: DLBnavBadge.md,
@@ -48,9 +51,9 @@ class DemoBottomNavTabPage extends StatelessWidget {
       ),
 
       // Label=true, Selected=false
-      _cell(showLabel: true, selected: false, badge: DLBnavBadge.none),
-      _cell(showLabel: true, selected: false, badge: DLBnavBadge.sm),
-      _cell(
+      _tile(showLabel: true, selected: false, badge: DLBnavBadge.none),
+      _tile(showLabel: true, selected: false, badge: DLBnavBadge.sm),
+      _tile(
         showLabel: true,
         selected: false,
         badge: DLBnavBadge.md,
@@ -58,9 +61,9 @@ class DemoBottomNavTabPage extends StatelessWidget {
       ),
 
       // Label=false, Selected=false
-      _cell(showLabel: false, selected: false, badge: DLBnavBadge.none),
-      _cell(showLabel: false, selected: false, badge: DLBnavBadge.sm),
-      _cell(
+      _tile(showLabel: false, selected: false, badge: DLBnavBadge.none),
+      _tile(showLabel: false, selected: false, badge: DLBnavBadge.sm),
+      _tile(
         showLabel: false,
         selected: false,
         badge: DLBnavBadge.md,
@@ -76,14 +79,16 @@ class DemoBottomNavTabPage extends StatelessWidget {
           const _SectionHeader('Combinations: label × selected × badge'),
           const SizedBox(height: 8),
           _PreviewBlock(
-            child: GridView.count(
-              padding: const EdgeInsets.all(24),
-              crossAxisCount: 3,
-              mainAxisSpacing: 48,
-              crossAxisSpacing: 48,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: items,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Wrap(
+                  spacing: 48,
+                  runSpacing: 48,
+                  alignment: WrapAlignment.center,
+                  children: items,
+                ),
+              ),
             ),
             code: _bottomNavTabCode,
           ),
@@ -93,7 +98,7 @@ class DemoBottomNavTabPage extends StatelessWidget {
   }
 }
 
-/// ---------- DOC UI helpers (same pattern as other catalog pages) ----------
+/// ---------- DOC UI helpers ----------
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader(this.title);
   final String title;
@@ -122,12 +127,7 @@ class _PreviewBlock extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: _surface(context),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
-              child: child,
-            ),
-          ),
+          child: child,
         ),
         const SizedBox(height: 12),
         const _SubHeader('Code'),
@@ -185,59 +185,43 @@ class _CodeBox extends StatelessWidget {
   }
 }
 
-/// ---------- Code Sample ----------
 const _bottomNavTabCode = '''
 // Basic DLBottomNavTab usage with variations
 
-// Selected + label + no badge
 DLBottomNavTab(
   label: 'Label',
   showLabel: true,
   selected: true,
   badge: DLBnavBadge.none,
-  selectedColor: DLColors.black,
-  unselectedColor: DLColors.grey400,
 );
 
-// Selected + label + small dot badge
 DLBottomNavTab(
   label: 'Label',
   showLabel: true,
   selected: true,
   badge: DLBnavBadge.sm,
-  selectedColor: DLColors.black,
-  unselectedColor: DLColors.grey400,
 );
 
-// Selected + label + count badge
 DLBottomNavTab(
   label: 'Label',
   showLabel: true,
   selected: true,
   badge: DLBnavBadge.md,
   badgeCount: 1,
-  selectedColor: DLColors.black,
-  unselectedColor: DLColors.grey400,
 );
 
-// Unselected + no label + dot badge
 DLBottomNavTab(
   label: 'Label',
   showLabel: false,
   selected: false,
   badge: DLBnavBadge.sm,
-  selectedColor: DLColors.black,
-  unselectedColor: DLColors.grey400,
 );
 
-// Unselected + no label + count badge
 DLBottomNavTab(
   label: 'Label',
   showLabel: false,
   selected: false,
   badge: DLBnavBadge.md,
   badgeCount: 1,
-  selectedColor: DLColors.black,
-  unselectedColor: DLColors.grey400,
 );
 ''';

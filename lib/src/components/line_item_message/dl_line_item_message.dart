@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../dynamiclayers.dart';
 import '../../../generated/assets.dart';
-// import '../avatar/dl_avatar.dart';
-// import '../avatar/dl_avatar_group.dart';
 import '../badge/dl_badge.dart';
 import '../separator/dl_separator.dart';
 
@@ -15,33 +13,23 @@ enum DLLineItemMessageState { normal, newlyReceived, disabled }
 class DLLineItemMessage extends StatelessWidget {
   const DLLineItemMessage({
     super.key,
-    this.width = 375,
+    this.width,
     required this.type,
     required this.state,
     required this.title,
     required this.message,
     required this.timeLabel,
-
-    // Single avatar
     this.avatarImage,
-
-    // Group avatars
     this.groupItems,
-
-    // Badge
     this.unreadCount = 0,
     this.badgeColor,
-
-    // Separators
     this.showTopSeparator = false,
     this.showBottomSeparator = true,
-
-    // Tap
     this.onTap,
   });
 
-  /// Fixed width of the row (defaults to 375).
-  final double width;
+  /// If provided, constrains the component width. If null => "hug"/expand.
+  final double? width;
 
   final DLLineItemMessageType type;
   final DLLineItemMessageState state;
@@ -50,19 +38,10 @@ class DLLineItemMessage extends StatelessWidget {
   final String message;
   final String timeLabel;
 
-  /// Optional single avatar image. If null we fall back to
-  /// `Assets.avatarAvatar`.
   final ImageProvider? avatarImage;
-
-  /// Optional avatar group items. If null we fall back to a group created from
-  /// `Assets.avatarAvatar` and `Assets.avatarAvatar1`.
   final List<DLAvatarItem>? groupItems;
 
-  /// Number of unread messages. When > 0 and [state] == newlyReceived,
-  /// a badge is shown.
   final int unreadCount;
-
-  /// Badge color. Defaults to **red** (DLColors.red500) if null.
   final Color? badgeColor;
 
   final bool showTopSeparator;
@@ -72,51 +51,48 @@ class DLLineItemMessage extends StatelessWidget {
 
   bool get _isDisabled => state == DLLineItemMessageState.disabled;
 
+  bool get _showBadge =>
+      !_isDisabled &&
+      state == DLLineItemMessageState.newlyReceived &&
+      unreadCount > 0;
+
+  Color get _badgeColor => badgeColor ?? DLColors.red500;
+
   TextStyle get _titleStyle {
     if (_isDisabled) {
-      return DLTypos.textBaseRegular(color: DLColors.grey500);
+      return DLTypos.textBaseStrike(color: DLColors.grey500);
     }
     return DLTypos.textBaseSemibold(color: DLColors.black);
   }
 
   TextStyle get _messageStyle {
+    if (_isDisabled) {
+      return DLTypos.textSmStrike(color: DLColors.grey500);
+    }
+
     switch (state) {
       case DLLineItemMessageState.normal:
         return DLTypos.textSmRegular(color: DLColors.grey500);
       case DLLineItemMessageState.newlyReceived:
         return DLTypos.textSmSemibold(color: DLColors.black);
       case DLLineItemMessageState.disabled:
-        return DLTypos.textSmRegular(
-          color: DLColors.grey500,
-        ).copyWith(decoration: TextDecoration.lineThrough);
+        return DLTypos.textSmStrike(color: DLColors.grey500);
     }
   }
 
   TextStyle get _timeStyle => DLTypos.textXsRegular(color: DLColors.grey500);
-
-  Color? get _rowBackground {
-    // We keep background mostly null (transparent / scaffold) to match spec.
-    // Disabled keeps same background but with dimmed text.
-    return null;
-  }
-
-  bool get _showBadge =>
-      state == DLLineItemMessageState.newlyReceived && unreadCount > 0;
-
-  Color get _badgeColor => badgeColor ?? DLColors.red500;
 
   Widget _buildLeading() {
     if (type == DLLineItemMessageType.single) {
       final img = avatarImage ?? const AssetImage(Assets.avatarAvatar);
       return DLAvatar(
         type: DLAvatarType.image,
-        size: DLAvatarSize.sm, // 40px
+        size: DLAvatarSize.lg,
         imageProvider: img,
         backgroundColor: DLColors.violet50,
       );
     }
 
-    // group
     final items =
         groupItems ??
         [
@@ -138,8 +114,7 @@ class DLLineItemMessage extends StatelessWidget {
     );
   }
 
-  Widget? _buildBadge() {
-    if (!_showBadge) return null;
+  Widget _buildBadge() {
     return DLBadge(
       size: DLBadgeSize.md,
       count: unreadCount,
@@ -151,79 +126,104 @@ class DLLineItemMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = ConstrainedBox(
-      constraints: const BoxConstraints(
-        minHeight: 76, // height is hug; can grow with text
-      ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: _rowBackground),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: DLSpacing.p16,
-            vertical: DLSpacing.p12,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildLeading(),
-              const SizedBox(width: DLSpacing.p12),
-              // Texts
-              Expanded(
+      constraints: const BoxConstraints(minHeight: 76),
+      child: Padding(
+        // no side spacing
+        padding: const EdgeInsets.symmetric(
+          horizontal: 0,
+          vertical: DLSpacing.p12,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Disabled visuals: dim avatars + text block (matches screenshot feel)
+            Opacity(opacity: _isDisabled ? 0.55 : 1, child: _buildLeading()),
+            const SizedBox(width: DLSpacing.p12),
+
+            Expanded(
+              child: Opacity(
+                opacity: _isDisabled ? 0.85 : 1,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: _titleStyle),
+                    // Name + time in one container
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: _titleStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: DLSpacing.p8),
+                        // keep time not struck-through (as in screenshot)
+                        Text(timeLabel, style: _timeStyle),
+                      ],
+                    ),
                     const SizedBox(height: 4),
-                    Text(
-                      message,
-                      style: _messageStyle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+
+                    // Message + (optional) badge
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: _showBadge ? 22 : 0),
+                          child: Text(
+                            message,
+                            style: _messageStyle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (_showBadge)
+                          Positioned(
+                            right: 0,
+                            bottom: -2,
+                            child: _buildBadge(),
+                          ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: DLSpacing.p8),
-              // Time + badge
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(timeLabel, style: _timeStyle),
-                  const SizedBox(height: 4),
-                  if (_buildBadge() != null) _buildBadge()!,
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
 
-    Widget content = SizedBox(
-      width: width, // fixed width
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showTopSeparator)
-            const DLSeparator(
-              direction: DLSeparatorDirection.horizontal,
-              thickness: 1,
-              color: DLColors.grey200,
-            ),
-          row,
-          if (showBottomSeparator)
-            const DLSeparator(
-              direction: DLSeparatorDirection.horizontal,
-              thickness: 1,
-              color: DLColors.grey200,
-            ),
-        ],
-      ),
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showTopSeparator)
+          const DLSeparator(
+            direction: DLSeparatorDirection.horizontal,
+            thickness: 1,
+            color: DLColors.grey200,
+          ),
+        row,
+        if (showBottomSeparator)
+          const DLSeparator(
+            direction: DLSeparatorDirection.horizontal,
+            thickness: 1,
+            color: DLColors.grey200,
+          ),
+      ],
     );
 
+    if (width != null) {
+      content = SizedBox(width: width, child: content);
+    }
+
     if (onTap != null) {
-      content = InkWell(onTap: _isDisabled ? null : onTap, child: content);
+      content = Material(
+        color: Colors.transparent,
+        child: InkWell(onTap: _isDisabled ? null : onTap, child: content),
+      );
     }
 
     return content;

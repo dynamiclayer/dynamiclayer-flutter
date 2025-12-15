@@ -22,11 +22,15 @@ enum DLLineItemType {
 class DLLineItem extends StatelessWidget {
   const DLLineItem({
     super.key,
-    this.width = 343,
+    this.width, // hug by default
     required this.title,
     this.description = 'Description',
     this.type = DLLineItemType.plain,
     this.enabled = true,
+
+    // Left icon
+    this.showLeftIcon = false,
+    this.leftIcon,
 
     // Switch
     this.switchValue,
@@ -52,13 +56,19 @@ class DLLineItem extends StatelessWidget {
     this.showBottomSeparator = true,
   });
 
-  /// Fixed width of the line item (defaults to 343).
-  final double width;
+  /// Optional width. If null -> hug (takes parent constraints).
+  final double? width;
 
   final String title;
   final String description;
   final DLLineItemType type;
   final bool enabled;
+
+  // Left icon
+  final bool showLeftIcon;
+
+  /// Left icon widget override. Default: Icon(Icons.fullscreen)
+  final Widget? leftIcon;
 
   // Switch
   final bool? switchValue;
@@ -85,20 +95,24 @@ class DLLineItem extends StatelessWidget {
 
   TextStyle get _titleStyle {
     if (!enabled) {
-      return DLTypos.textBaseRegular(
+      return DLTypos.textSmStrike(
         color: DLColors.grey500,
-      ).copyWith(decoration: TextDecoration.lineThrough);
+      ).copyWith(fontWeight: FontWeight.w400);
     }
     return DLTypos.textBaseSemibold(color: DLColors.black);
   }
 
   TextStyle get _descriptionStyle {
     if (!enabled) {
-      return DLTypos.textSmRegular(
+      return DLTypos.textSmStrike(
         color: DLColors.grey500,
-      ).copyWith(decoration: TextDecoration.lineThrough);
+      ).copyWith(fontWeight: FontWeight.w400);
     }
     return DLTypos.textSmRegular(color: DLColors.black);
+  }
+
+  Widget _buildLeftIcon() {
+    return leftIcon ?? const Icon(Icons.fullscreen, size: 20);
   }
 
   Widget? _buildTrailing() {
@@ -115,7 +129,7 @@ class DLLineItem extends StatelessWidget {
 
       case DLLineItemType.button:
         return DLButton(
-          type: DLButtonType.secondary,
+          type: DLButtonType.tertiary,
           size: DLButtonSize.xs,
           label: buttonLabel ?? 'Add',
           onPressed: enabled ? onButtonPressed : null,
@@ -143,8 +157,53 @@ class DLLineItem extends StatelessWidget {
               Assets.lineItemArrowFarword,
               width: 8,
               height: 14,
-              color: DLColors.grey500,
+              color: DLColors.black, // chevron must be black
             );
+    }
+  }
+
+  bool get _hasAnyTap =>
+      enabled &&
+      (onTap != null ||
+          onButtonPressed != null ||
+          onSwitchChanged != null ||
+          onCheckboxChanged != null ||
+          onRadioChanged != null);
+
+  void _handleTap() {
+    if (!enabled) return;
+
+    // Priority: explicit onTap always wins if provided
+    if (onTap != null) {
+      onTap!.call();
+      return;
+    }
+
+    // Otherwise, type-driven interactions
+    switch (type) {
+      case DLLineItemType.checkbox:
+        final current = checkboxValue ?? false;
+        onCheckboxChanged?.call(!current);
+        break;
+
+      case DLLineItemType.radioButton:
+        // Set selected to true on tap
+        onRadioChanged?.call(true);
+        break;
+
+      case DLLineItemType.switchControl:
+        final current = switchValue ?? false;
+        onSwitchChanged?.call(!current);
+        break;
+
+      case DLLineItemType.button:
+        onButtonPressed?.call();
+        break;
+
+      case DLLineItemType.plain:
+      case DLLineItemType.icon:
+        // no-op if onTap was null (handled above)
+        break;
     }
   }
 
@@ -152,30 +211,30 @@ class DLLineItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final trailing = _buildTrailing();
 
-    final row = ConstrainedBox(
-      constraints: const BoxConstraints(
-        minHeight: 76, // height is hug — can grow with content
-      ),
+    Widget row = ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 76),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: DLSpacing.p16,
-          vertical: DLSpacing.p12,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: DLSpacing.p0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Title + description
+            if (showLeftIcon) ...[
+              _buildLeftIcon(),
+              const SizedBox(width: DLSpacing.p12),
+            ],
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(title, style: _titleStyle),
-                  const SizedBox(height: 4),
+                  SizedBox(height: DLSpacing.p8),
                   Text(description, style: _descriptionStyle),
                 ],
               ),
             ),
+
             if (trailing != null) ...[
               const SizedBox(width: DLSpacing.p16),
               trailing,
@@ -185,25 +244,26 @@ class DLLineItem extends StatelessWidget {
       ),
     );
 
-    Widget content = SizedBox(
-      width: width, // fixed width 343
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          row,
-          if (showBottomSeparator)
-            const DLSeparator(
-              direction: DLSeparatorDirection.horizontal,
-              thickness: 1,
-              color: DLColors.grey200,
-            ),
-        ],
-      ),
+    // Make the whole item tappable for ALL trailing types as well.
+    if (_hasAnyTap) {
+      row = InkWell(onTap: _handleTap, child: row);
+    }
+
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        row,
+        if (showBottomSeparator)
+          const DLSeparator(
+            direction: DLSeparatorDirection.horizontal,
+            thickness: 1,
+            color: DLColors.grey200,
+          ),
+      ],
     );
 
-    if (onTap != null &&
-        (type == DLLineItemType.plain || type == DLLineItemType.icon)) {
-      content = InkWell(onTap: enabled ? onTap : null, child: content);
+    if (width != null) {
+      content = SizedBox(width: width, child: content);
     }
 
     return content;

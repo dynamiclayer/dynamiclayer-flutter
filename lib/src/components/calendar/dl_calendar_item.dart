@@ -69,16 +69,19 @@ class DLCalendarItem extends StatelessWidget {
       padding: const EdgeInsets.all(_padding),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: DLRadii.brMd, // feel free to change if needed
+        // No border radius: square corners
+        borderRadius: BorderRadius.zero,
       ),
       child: Center(
-        child: Text('$day', style: DLTypos.textBaseRegular(color: fg)),
+        child: Text(
+          '$day',
+          // Medium instead of Regular
+          style: DLTypos.textBaseMedium(color: fg),
+        ),
       ),
     );
 
-    if (_isDisabled || onTap == null) {
-      return cell;
-    }
+    if (_isDisabled || onTap == null) return cell;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

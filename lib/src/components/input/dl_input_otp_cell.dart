@@ -1,5 +1,6 @@
 // lib/src/components/input/dl_input_otp_cell.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../dynamiclayers.dart';
 
@@ -17,25 +18,49 @@ enum DLOtpCellState {
 class DLInputOtpCell extends StatelessWidget {
   const DLInputOtpCell({
     super.key,
+
+    /// If you don't pass a controller, [value] will be used for rendering.
     required this.value,
+
     this.state = DLOtpCellState.normal,
     this.obscure = false,
     this.size = 48,
+
+    // Keyboard / input (optional)
+    this.controller,
+    this.focusNode,
+    this.onChanged,
+    this.onTap,
+    this.onBackspaceWhenEmpty,
+    this.autofocus = false,
+    this.keyboardType = TextInputType.number,
+    this.inputFormatters,
+    this.textInputAction = TextInputAction.next,
   });
 
-  /// Raw character in this cell (digit or anything).
   final String value;
-
-  /// Visual state.
   final DLOtpCellState state;
-
-  /// If true, shows a dot instead of the real value (when there is one).
   final bool obscure;
-
-  /// Box size (width & height).
   final double size;
 
-  bool get _hasValue => value.isNotEmpty;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
+
+  /// Called when backspace is pressed while this cell is focused AND empty.
+  final VoidCallback? onBackspaceWhenEmpty;
+
+  final bool autofocus;
+  final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextInputAction textInputAction;
+
+  bool get _isDisabled => state == DLOtpCellState.disabled;
+
+  String get _text => controller?.text ?? value;
+  bool get _hasValue => _text.isNotEmpty;
 
   // ---------------------------------------------------------------------------
   // TOKENS
@@ -122,10 +147,8 @@ class DLInputOtpCell extends StatelessWidget {
   // CONTENT
   // ---------------------------------------------------------------------------
 
-  Widget _buildCaret() {
-    // Blinking caret instead of static bar
-    return _BlinkingCaret(height: size * 0.5, color: _digitColor());
-  }
+  Widget _buildCaret() =>
+      _BlinkingCaret(height: size * 0.5, color: _digitColor());
 
   Widget _buildDot(Color color) {
     return Container(
@@ -135,62 +158,141 @@ class DLInputOtpCell extends StatelessWidget {
     );
   }
 
-  Widget _buildDash(Color color) {
-    return Text('-', style: DLTypos.textSmRegular(color: color));
-  }
+  Widget _buildDash(Color color) =>
+      Text('-', style: DLTypos.textSmRegular(color: color));
 
-  Widget _buildDigit(String char, Color color) {
-    return Text(char, style: DLTypos.textLgRegular(color: color));
-  }
+  Widget _buildDigit(String char, Color color) =>
+      Text(char, style: DLTypos.textLgRegular(color: color));
 
   Widget _content() {
-    // Disabled: always show a grey dash when empty.
-    if (state == DLOtpCellState.disabled && !_hasValue) {
-      return _buildDash(DLColors.grey500);
-    }
+    if (_isDisabled && !_hasValue) return _buildDash(DLColors.grey500);
+    if (state == DLOtpCellState.active && !_hasValue) return _buildCaret();
 
-    // Active & empty: show blinking caret.
-    if (state == DLOtpCellState.active && !_hasValue) {
-      return _buildCaret();
-    }
-
-    // If we have a value, decide digit vs dot
     if (_hasValue) {
-      final useDot =
-          obscure ||
-          state == DLOtpCellState.invisible ||
-          state == DLOtpCellState.error ||
-          state == DLOtpCellState.success;
-
-      if (useDot) {
-        return _buildDot(_dotColor());
-      } else {
-        return _buildDigit(value, _digitColor());
-      }
+      final useDot = obscure || state == DLOtpCellState.invisible;
+      return useDot
+          ? _buildDot(_dotColor())
+          : _buildDigit(_text, _digitColor());
     }
 
-    // Normal empty cell: nothing inside.
     return const SizedBox.shrink();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final bool hasTextField = controller != null;
+
+    return SizedBox(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: _background(),
-        borderRadius: BorderRadius.circular(DLRadii.md),
-        border: Border.all(color: _borderColor(), width: _borderWidth()),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: _background(),
+                borderRadius: BorderRadius.circular(DLRadii.md),
+                border: Border.all(
+                  color: _borderColor(),
+                  width: _borderWidth(),
+                ),
+              ),
+              alignment: Alignment.center,
+              child: _content(),
+            ),
+          ),
+
+          if (hasTextField)
+            Positioned.fill(
+              child: CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(LogicalKeyboardKey.backspace): () {
+                    if (_isDisabled) return;
+                    if (controller!.text.isEmpty) {
+                      onBackspaceWhenEmpty?.call();
+                    }
+                  },
+                },
+                child: _InvisibleOtpTextField(
+                  enabled: !_isDisabled,
+                  controller: controller!,
+                  focusNode: focusNode,
+                  autofocus: autofocus,
+                  keyboardType: keyboardType,
+                  textInputAction: textInputAction,
+                  inputFormatters:
+                      inputFormatters ??
+                      [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(1),
+                      ],
+                  onChanged: onChanged,
+                  onTap: () {
+                    final node = focusNode;
+                    if (node != null && !node.hasFocus) node.requestFocus();
+                    onTap?.call();
+                  },
+                ),
+              ),
+            ),
+        ],
       ),
-      alignment: Alignment.center,
-      child: _content(),
+    );
+  }
+}
+
+class _InvisibleOtpTextField extends StatelessWidget {
+  const _InvisibleOtpTextField({
+    required this.enabled,
+    required this.controller,
+    required this.focusNode,
+    required this.autofocus,
+    required this.keyboardType,
+    required this.textInputAction,
+    required this.inputFormatters,
+    required this.onChanged,
+    required this.onTap,
+  });
+
+  final bool enabled;
+  final TextEditingController controller;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final List<TextInputFormatter> inputFormatters;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      enabled: enabled,
+      controller: controller,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      inputFormatters: inputFormatters,
+      maxLength: 1,
+      showCursor: false,
+      enableInteractiveSelection: false,
+      textAlign: TextAlign.center,
+      style: const TextStyle(color: Colors.transparent, height: 1, fontSize: 1),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        isCollapsed: true,
+        contentPadding: EdgeInsets.zero,
+        counterText: '',
+      ),
+      onTap: onTap,
+      onChanged: onChanged,
     );
   }
 }
 
 /// ---------------------------------------------------------------------------
-/// Blinking caret used for the "active + empty" state
+/// Blinking caret
 /// ---------------------------------------------------------------------------
 class _BlinkingCaret extends StatefulWidget {
   const _BlinkingCaret({required this.height, required this.color});

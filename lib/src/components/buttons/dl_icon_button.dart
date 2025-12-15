@@ -195,24 +195,18 @@ class _DLIconButtonState extends State<DLIconButton> {
     final bw = _borderWidth();
     final bc = _borderColor(state);
 
-    Widget content = SizedBox(
-      width: _dimension,
-      height: _dimension,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: DLRadii.brMd, // rounded_md
-          border: bw > 0 && bc != null
-              ? Border.all(width: bw, color: bc)
-              : null,
-        ),
-        child: Padding(
-          padding: _padding,
-          child: Center(
-            child: IconTheme(
-              data: IconThemeData(size: _iconSize, color: iconColor),
-              child: widget.icon,
-            ),
+    Widget content = DecoratedBox(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: DLRadii.brMd, // rounded_md
+        border: bw > 0 && bc != null ? Border.all(width: bw, color: bc) : null,
+      ),
+      child: Padding(
+        padding: _padding,
+        child: Center(
+          child: IconTheme(
+            data: IconThemeData(size: _iconSize, color: iconColor),
+            child: widget.icon,
           ),
         ),
       ),

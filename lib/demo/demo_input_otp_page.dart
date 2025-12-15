@@ -18,7 +18,7 @@ class DemoInputOtpPage extends StatelessWidget {
           SizedBox(height: 8),
           _PreviewBlock(child: _OtpStatesPreview(), code: _otpStatesCode),
           SizedBox(height: 24),
-          _SectionHeader('OTP Row Example'),
+          _SectionHeader('OTP Row Example (Interactive)'),
           SizedBox(height: 8),
           _PreviewBlock(child: _OtpRowPreview(), code: _otpRowCode),
         ],
@@ -26,10 +26,6 @@ class DemoInputOtpPage extends StatelessWidget {
     );
   }
 }
-
-/// ---------------------------------------------------------------------------
-/// PREVIEW 1 – all states in a Wrap
-/// ---------------------------------------------------------------------------
 
 class _OtpStatesPreview extends StatelessWidget {
   const _OtpStatesPreview();
@@ -41,39 +37,85 @@ class _OtpStatesPreview extends StatelessWidget {
       runSpacing: 16,
       alignment: WrapAlignment.center,
       children: const [
-        // default (empty)
         DLInputOtpCell(value: '', state: DLOtpCellState.normal),
-        // active caret
         DLInputOtpCell(value: '', state: DLOtpCellState.active),
-        // filled digit
         DLInputOtpCell(value: '3', state: DLOtpCellState.filled),
-        // invisible (black dot)
         DLInputOtpCell(
           value: '4',
           state: DLOtpCellState.invisible,
           obscure: true,
         ),
-        // error (red dot + red border / bg)
         DLInputOtpCell(value: '5', state: DLOtpCellState.error, obscure: true),
-        // success (green dot + green border / bg)
         DLInputOtpCell(
           value: '6',
           state: DLOtpCellState.success,
           obscure: true,
         ),
-        // disabled (dash)
         DLInputOtpCell(value: '', state: DLOtpCellState.disabled),
       ],
     );
   }
 }
 
-/// ---------------------------------------------------------------------------
-/// PREVIEW 2 – typical OTP row
-/// ---------------------------------------------------------------------------
-
-class _OtpRowPreview extends StatelessWidget {
+class _OtpRowPreview extends StatefulWidget {
   const _OtpRowPreview();
+
+  @override
+  State<_OtpRowPreview> createState() => _OtpRowPreviewState();
+}
+
+class _OtpRowPreviewState extends State<_OtpRowPreview> {
+  static const int _len = 6;
+
+  late final List<TextEditingController> _controllers = List.generate(
+    _len,
+    (_) => TextEditingController(),
+  );
+  late final List<FocusNode> _nodes = List.generate(_len, (_) => FocusNode());
+
+  @override
+  void dispose() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final n in _nodes) {
+      n.dispose();
+    }
+    super.dispose();
+  }
+
+  void _focus(int index) {
+    if (index < 0 || index >= _len) return;
+    _nodes[index].requestFocus();
+  }
+
+  void _onChanged(int index, String v) {
+    // Keep 1 char only (last).
+    if (v.length > 1) {
+      final last = v.characters.last;
+      _controllers[index].text = last;
+      _controllers[index].selection = const TextSelection.collapsed(offset: 1);
+    }
+
+    setState(() {});
+
+    if (_controllers[index].text.isNotEmpty && index < _len - 1) {
+      _focus(index + 1);
+    }
+  }
+
+  void _onBackspaceEmpty(int index) {
+    if (index <= 0) return;
+    _controllers[index - 1].clear();
+    setState(() {});
+    _focus(index - 1);
+  }
+
+  DLOtpCellState _stateForIndex(int index) {
+    if (_controllers[index].text.isNotEmpty) return DLOtpCellState.filled;
+    if (_nodes[index].hasFocus) return DLOtpCellState.active;
+    return DLOtpCellState.normal;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,25 +123,33 @@ class _OtpRowPreview extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        DLInputOtpCell(value: '1', state: DLOtpCellState.filled),
-        gap,
-        DLInputOtpCell(value: '2', state: DLOtpCellState.filled),
-        gap,
-        DLInputOtpCell(value: '3', state: DLOtpCellState.filled),
-        gap,
-        DLInputOtpCell(value: '', state: DLOtpCellState.active),
-        gap,
-        DLInputOtpCell(value: '', state: DLOtpCellState.normal),
-        gap,
-        DLInputOtpCell(value: '', state: DLOtpCellState.normal),
-      ],
+      children: List.generate(_len, (i) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DLInputOtpCell(
+              value: '',
+              controller: _controllers[i],
+              focusNode: _nodes[i],
+              state: _stateForIndex(i),
+              keyboardType: TextInputType.number,
+              textInputAction: i == _len - 1
+                  ? TextInputAction.done
+                  : TextInputAction.next,
+              onTap: () => _focus(i),
+              onChanged: (v) => _onChanged(i, v),
+              onBackspaceWhenEmpty: () => _onBackspaceEmpty(i),
+            ),
+            if (i != _len - 1) gap,
+          ],
+        );
+      }),
     );
   }
 }
 
 /// ---------------------------------------------------------------------------
-/// Shared demo helpers
+/// Shared demo helpers (unchanged)
 /// ---------------------------------------------------------------------------
 
 class _SectionHeader extends StatelessWidget {
@@ -193,10 +243,6 @@ class _CodeBox extends StatelessWidget {
   }
 }
 
-/// ---------------------------------------------------------------------------
-/// Code samples
-/// ---------------------------------------------------------------------------
-
 const String _otpStatesCode = '''
 Wrap(
   spacing: 24,
@@ -206,41 +252,14 @@ Wrap(
     DLInputOtpCell(value: '', state: DLOtpCellState.normal),
     DLInputOtpCell(value: '', state: DLOtpCellState.active),
     DLInputOtpCell(value: '3', state: DLOtpCellState.filled),
-    DLInputOtpCell(
-      value: '4',
-      state: DLOtpCellState.invisible,
-      obscure: true,
-    ),
-    DLInputOtpCell(
-      value: '5',
-      state: DLOtpCellState.error,
-      obscure: true,
-    ),
-    DLInputOtpCell(
-      value: '6',
-      state: DLOtpCellState.success,
-      obscure: true,
-    ),
+    DLInputOtpCell(value: '4', state: DLOtpCellState.invisible, obscure: true),
+    DLInputOtpCell(value: '5', state: DLOtpCellState.error, obscure: true),
+    DLInputOtpCell(value: '6', state: DLOtpCellState.success, obscure: true),
     DLInputOtpCell(value: '', state: DLOtpCellState.disabled),
   ],
 );
 ''';
 
 const String _otpRowCode = '''
-Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: const [
-    DLInputOtpCell(value: '1', state: DLOtpCellState.filled),
-    SizedBox(width: 8),
-    DLInputOtpCell(value: '2', state: DLOtpCellState.filled),
-    SizedBox(width: 8),
-    DLInputOtpCell(value: '3', state: DLOtpCellState.filled),
-    SizedBox(width: 8),
-    DLInputOtpCell(value: '', state: DLOtpCellState.active),
-    SizedBox(width: 8),
-    DLInputOtpCell(value: '', state: DLOtpCellState.normal),
-    SizedBox(width: 8),
-    DLInputOtpCell(value: '', state: DLOtpCellState.normal),
-  ],
-);
+// Interactive row: uses controllers + focus nodes and onBackspaceWhenEmpty.
 ''';

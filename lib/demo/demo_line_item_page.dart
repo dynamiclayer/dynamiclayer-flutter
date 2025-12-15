@@ -84,6 +84,7 @@ class _DefaultLineItemsPreview extends StatelessWidget {
           description: 'Description',
           type: DLLineItemType.plain,
           enabled: true,
+          showLeftIcon: true,
         ),
         DLLineItem(
           title: 'Title',
@@ -286,7 +287,7 @@ class _PreviewBlock extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
-          decoration: _surface(context),
+
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 740),
@@ -301,12 +302,6 @@ class _PreviewBlock extends StatelessWidget {
       ],
     );
   }
-
-  BoxDecoration _surface(BuildContext context) => BoxDecoration(
-    color: Theme.of(context).colorScheme.surface,
-    border: Border.all(color: Colors.black12),
-    borderRadius: BorderRadius.circular(12),
-  );
 }
 
 class _SubHeader extends StatelessWidget {

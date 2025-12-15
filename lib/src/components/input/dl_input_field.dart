@@ -4,57 +4,75 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../dynamiclayers.dart';
 
-/// Icons (paths) – adjust to your own assets file if needed.
+/// Optional status icons (only used when showRightIcon == false)
 const String _iconAlertTriangleFilled =
     'assets/alerts/alert-triangle-filled.svg';
 const String _iconCircleAlert = 'assets/alerts/circle_alert.svg';
 const String _iconCircleCheck = 'assets/alerts/circle_check.svg';
-const String _iconCircleX = 'assets/alerts/circle_x.svg';
-const String _iconInfo = 'assets/alerts/info.svg';
 
 enum DLInputFieldSize { lg, md, sm }
 
+/// Kept for backwards compatibility.
 enum DLInputFieldType { normal, success, error, disabled }
 
 class DLInputField extends StatefulWidget {
   const DLInputField({
     super.key,
-    this.width = 343,
+
+    /// Requirement: width is HUG (not fixed)
+    /// Keep for backwards compatibility; if null => hug/expand by parent.
+    this.width,
+
     this.size = DLInputFieldSize.lg,
     this.type = DLInputFieldType.normal,
+
+    /// You can still pass label, but now the "placeholder/hint" floats.
+    /// If label is provided, it will be used as the floating text instead of placeholder.
     this.label,
+
+    /// Requirement: placeholder (hint) floats to top when focused/typing.
     this.placeholder = 'Input Field',
+
     this.controller,
     this.onChanged,
+
+    /// Only shown when type == error.
     this.errorText,
-    this.iconLeft,
-    this.iconRight,
+
+    /// Requirement: default left/right icon = const Icon(Icons.fullscreen)
+    this.leftIcon,
+    this.rightIcon,
+
+    /// Requirement: bools to show/hide left & right icon
+    this.showLeftIcon = false,
+    this.showRightIcon = false,
+
     this.enabled = true,
   });
 
-  /// Fixed width (defaults to 343).
-  final double width;
+  /// If null => hug/expand.
+  final double? width;
 
   final DLInputFieldSize size;
   final DLInputFieldType type;
 
-  /// Small text shown above when active/filled.
+  /// Optional floating label override.
   final String? label;
 
-  /// Placeholder text inside the field.
+  /// Hint text (and floating label when label == null).
   final String placeholder;
 
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
 
-  /// Only used when [type] == error.
   final String? errorText;
 
-  /// Custom leading / trailing icons (overrides status icons).
-  final Widget? iconLeft;
-  final Widget? iconRight;
+  final Widget? leftIcon;
+  final Widget? rightIcon;
 
-  /// Overall enabled flag (in addition to [type] == disabled).
+  final bool showLeftIcon;
+  final bool showRightIcon;
+
   final bool enabled;
 
   @override
@@ -69,12 +87,15 @@ class _DLInputFieldState extends State<DLInputField> {
   bool _hasText = false;
   bool _hasFocus = false;
 
+  static const Widget _defaultSideIcon = Icon(Icons.fullscreen);
+
   @override
   void initState() {
     super.initState();
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? TextEditingController();
     _hasText = _controller.text.trim().isNotEmpty;
+
     _focusNode.addListener(_handleFocusChange);
     _controller.addListener(_handleTextChange);
   }
@@ -82,10 +103,9 @@ class _DLInputFieldState extends State<DLInputField> {
   @override
   void didUpdateWidget(covariant DLInputField oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.controller != widget.controller) {
-      if (_ownsController) {
-        _controller.dispose();
-      }
+      if (_ownsController) _controller.dispose();
 
       _ownsController = widget.controller == null;
       final newController = widget.controller ?? TextEditingController();
@@ -104,9 +124,7 @@ class _DLInputFieldState extends State<DLInputField> {
 
   void _handleTextChange() {
     final has = _controller.text.trim().isNotEmpty;
-    if (has != _hasText) {
-      setState(() => _hasText = has);
-    }
+    if (has != _hasText) setState(() => _hasText = has);
     widget.onChanged?.call(_controller.text);
   }
 
@@ -117,9 +135,8 @@ class _DLInputFieldState extends State<DLInputField> {
   @override
   void dispose() {
     _controller.removeListener(_handleTextChange);
-    if (_ownsController) {
-      _controller.dispose();
-    }
+    if (_ownsController) _controller.dispose();
+
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();
     super.dispose();
@@ -132,52 +149,7 @@ class _DLInputFieldState extends State<DLInputField> {
   // Layout tokens
   // ---------------------------------------------------------------------------
 
-  EdgeInsets _padding() {
-    // In spec: default vs active padding.
-    final bool isActiveLike = _hasFocus || _hasText;
-    switch (widget.size) {
-      case DLInputFieldSize.lg:
-        return isActiveLike
-            ? const EdgeInsets.fromLTRB(
-                DLSpacing.p16,
-                DLSpacing.p8,
-                DLSpacing.p16,
-                DLSpacing.p8,
-              )
-            : const EdgeInsets.all(DLSpacing.p16);
-      case DLInputFieldSize.md:
-        return isActiveLike
-            ? const EdgeInsets.fromLTRB(
-                DLSpacing.p16,
-                DLSpacing.p4,
-                DLSpacing.p16,
-                DLSpacing.p4,
-              )
-            : const EdgeInsets.fromLTRB(
-                DLSpacing.p16,
-                DLSpacing.p12,
-                DLSpacing.p16,
-                DLSpacing.p12,
-              );
-      case DLInputFieldSize.sm:
-        return isActiveLike
-            ? const EdgeInsets.fromLTRB(
-                DLSpacing.p12,
-                DLSpacing.p4,
-                DLSpacing.p12,
-                DLSpacing.p4,
-              )
-            : const EdgeInsets.fromLTRB(
-                DLSpacing.p12,
-                DLSpacing.p8,
-                DLSpacing.p12,
-                DLSpacing.p8,
-              );
-    }
-  }
-
   double _minHeight() {
-    // Token: min height for each size. Container will HUG content above this.
     switch (widget.size) {
       case DLInputFieldSize.lg:
         return 56;
@@ -188,87 +160,95 @@ class _DLInputFieldState extends State<DLInputField> {
     }
   }
 
-  Color _backgroundColor() {
-    if (widget.type == DLInputFieldType.disabled) {
-      return DLColors.grey100;
+  EdgeInsets _containerPadding() {
+    // IMPORTANT: keep padding stable to avoid “jump”
+    switch (widget.size) {
+      case DLInputFieldSize.lg:
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p16,
+          vertical: DLSpacing.p8,
+        );
+      case DLInputFieldSize.md:
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p16,
+          vertical: DLSpacing.p6,
+        );
+      case DLInputFieldSize.sm:
+        return const EdgeInsets.symmetric(
+          horizontal: DLSpacing.p12,
+          vertical: DLSpacing.p4,
+        );
     }
-    return DLColors.grey100;
   }
 
-  // Only active (focused) has border; filled-but-not-focused = no border
-  Color _borderColor() {
-    if (!_hasFocus) {
-      return Colors.transparent;
-    }
+  Color _backgroundColor() => DLColors.grey100;
 
+  /// Requirement: active black 2 border, but no jump.
+  /// Solution: ALWAYS keep border width = 2 (transparent when inactive).
+  Color _borderColor() {
+    if (widget.type == DLInputFieldType.disabled) return Colors.transparent;
+    if (_hasFocus) return DLColors.black;
+    return Colors.transparent;
+  }
+
+  double _borderWidth() => DLBorderWidth.w2;
+
+  // ---------------------------------------------------------------------------
+  // Typography / colors
+  // ---------------------------------------------------------------------------
+
+  Color _hintColor() {
+    // Requirement: only placeholder/hint changes color for error/success
     switch (widget.type) {
-      case DLInputFieldType.normal:
-        return DLColors.black;
-      case DLInputFieldType.success:
-        return DLColors.green600;
       case DLInputFieldType.error:
         return DLColors.red600;
+      case DLInputFieldType.success:
+        return DLColors.green600;
       case DLInputFieldType.disabled:
-        return Colors.transparent;
+        return DLColors.grey500;
+      case DLInputFieldType.normal:
+        return DLColors.grey500;
     }
   }
 
-  double _borderWidth() {
-    if (!_hasFocus || widget.type == DLInputFieldType.disabled) return 0;
-    // Spec: 2px when active.
-    return DLBorderWidth.w2;
-  }
+  // TextDecoration? _disabledDecoration() {
+  //   return widget.type == DLInputFieldType.disabled
+  //       ? TextDecoration.lineThrough
+  //       : null;
+  // }
 
-  TextStyle _placeholderStyle() {
-    Color color = DLColors.grey500;
-    if (widget.type == DLInputFieldType.error) {
-      color = DLColors.red600;
-    } else if (widget.type == DLInputFieldType.disabled) {
-      color = DLColors.grey500;
-    }
-    TextDecoration? decoration = widget.type == DLInputFieldType.disabled
-        ? TextDecoration.lineThrough
-        : null;
-
-    return DLTypos.textBaseRegular(
-      color: color,
-    ).copyWith(decoration: decoration);
-  }
-
+  /// Requirement: text inside remains black even in error/success.
   TextStyle _textStyle() {
-    Color color = DLColors.black;
-    if (widget.type == DLInputFieldType.error) {
-      color = DLColors.red600;
-    } else if (widget.type == DLInputFieldType.disabled) {
-      color = DLColors.grey500;
-    }
-    TextDecoration? decoration = widget.type == DLInputFieldType.disabled
-        ? TextDecoration.lineThrough
-        : null;
+    final color = widget.type == DLInputFieldType.disabled
+        ? DLColors.grey500
+        : DLColors.black;
 
-    return DLTypos.textBaseRegular(
-      color: color,
-    ).copyWith(decoration: decoration);
+    return widget.type == DLInputFieldType.disabled
+        ? DLTypos.textBaseStrike(color: color)
+        : DLTypos.textBaseRegular(color: color);
   }
 
-  TextStyle _labelStyle() {
-    Color color = DLColors.grey500;
-    if (widget.type == DLInputFieldType.error) {
-      color = DLColors.red600;
-    } else if (widget.type == DLInputFieldType.success) {
-      color = DLColors.green600;
-    } else if (widget.type == DLInputFieldType.disabled) {
-      color = DLColors.grey500;
-    }
-    TextDecoration? decoration = widget.type == DLInputFieldType.disabled
-        ? TextDecoration.lineThrough
-        : null;
-
-    return DLTypos.textSmRegular(color: color).copyWith(decoration: decoration);
+  /// Hint when it sits inside (rare; mainly labelText is used) + general hint style.
+  TextStyle _hintStyle() {
+    return widget.type == DLInputFieldType.disabled
+        ? DLTypos.textBaseStrike(color: _hintColor())
+        : DLTypos.textBaseRegular(color: _hintColor());
   }
+
+  /// Floating label style (small, at top when focused/typing).
+  TextStyle _floatingLabelStyle() {
+    // Use sm to satisfy “small” requirement
+    return widget.type == DLInputFieldType.disabled
+        ? DLTypos.textBaseStrike(color: _hintColor())
+        : DLTypos.textSmRegular(color: _hintColor());
+  }
+
+  // ---------------------------------------------------------------------------
+  // Status icon logic (only if showRightIcon == false)
+  // ---------------------------------------------------------------------------
 
   String? _statusIconAsset() {
-    if (widget.iconRight != null) return null;
+    if (widget.showRightIcon) return null;
 
     switch (widget.type) {
       case DLInputFieldType.normal:
@@ -282,7 +262,6 @@ class _DLInputFieldState extends State<DLInputField> {
     }
   }
 
-  /// UPDATED: return `null` for disabled so the SVG uses its own yellow color.
   Color? _statusIconColor() {
     switch (widget.type) {
       case DLInputFieldType.normal:
@@ -296,14 +275,43 @@ class _DLInputFieldState extends State<DLInputField> {
     }
   }
 
+  Widget _buildLeftIcon() {
+    final icon = widget.leftIcon ?? _defaultSideIcon;
+    return IconTheme(
+      data: IconThemeData(
+        size: 24,
+        color: widget.type == DLInputFieldType.disabled
+            ? DLColors.grey500
+            : DLColors.grey500,
+      ),
+      child: icon,
+    );
+  }
+
+  Widget _buildRightIcon() {
+    final icon = widget.rightIcon ?? _defaultSideIcon;
+    return IconTheme(
+      data: IconThemeData(
+        size: 24,
+        color: widget.type == DLInputFieldType.disabled
+            ? DLColors.grey500
+            : DLColors.grey500,
+      ),
+      child: icon,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bool showLabel = widget.label != null && (_hasFocus || _hasText);
     final statusAsset = _statusIconAsset();
+
+    // Requirement: placeholder/hint floats to top when focused/typing.
+    // Use labelText + floatingLabelBehavior.
+    final floatingText = widget.label ?? widget.placeholder;
 
     final field = Container(
       constraints: BoxConstraints(minHeight: _minHeight()),
-      padding: _padding(),
+      padding: _containerPadding(),
       decoration: BoxDecoration(
         color: _backgroundColor(),
         borderRadius: BorderRadius.circular(DLRadii.md),
@@ -312,60 +320,64 @@ class _DLInputFieldState extends State<DLInputField> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (widget.iconLeft != null) ...[
-            widget.iconLeft!,
+          if (widget.showLeftIcon) ...[
+            _buildLeftIcon(),
             const SizedBox(width: DLSpacing.p16),
           ],
-          // Text column
+
           Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (showLabel) ...[
-                  Text(widget.label!, style: _labelStyle()),
-                  const SizedBox(height: 2),
-                ],
-                TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  enabled: _isEnabled,
-                  maxLines: 1,
-                  style: _textStyle(),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    hintText: showLabel ? null : widget.placeholder,
-                    hintStyle: _placeholderStyle(),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ],
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              enabled: _isEnabled,
+              maxLines: 1,
+              style: _textStyle(),
+              decoration: InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+
+                // floating “placeholder”
+                labelText: floatingText,
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
+                labelStyle: _hintStyle(), // when resting inside
+                floatingLabelStyle: _floatingLabelStyle(),
+
+                // when empty and not focused, label sits inside (acts like hint)
+                hintText: null,
+                hintStyle: _hintStyle(),
+
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
           ),
-          if (statusAsset != null) ...[
+
+          if (widget.showRightIcon) ...[
+            const SizedBox(width: DLSpacing.p16),
+            _buildRightIcon(),
+          ] else if (statusAsset != null) ...[
             const SizedBox(width: DLSpacing.p16),
             SvgPicture.asset(
               statusAsset,
               width: 24,
               height: 24,
-              color: _statusIconColor(), // color nullable, disabled keeps SVG
+              color: _statusIconColor(),
             ),
-          ] else if (widget.iconRight != null) ...[
-            const SizedBox(width: DLSpacing.p16),
-            widget.iconRight!,
           ],
         ],
       ),
     );
 
-    Widget result = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: widget.width),
-      child: field,
-    );
+    Widget result = field;
 
-    // Error wrapper with message below
+    // width = hug by default; only constrain if width provided
+    if (widget.width != null) {
+      result = ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: widget.width!),
+        child: result,
+      );
+    }
+
+    // error text below stays red; input text remains black (requirement)
     if (widget.type == DLInputFieldType.error && widget.errorText != null) {
       result = Column(
         crossAxisAlignment: CrossAxisAlignment.start,

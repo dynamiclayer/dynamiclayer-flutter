@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../../dynamiclayers.dart';
 import '../../../generated/assets.dart';
 
@@ -70,10 +71,9 @@ class DLBottomNavTab extends StatelessWidget {
   String get _unselectedAsset => Assets.bottomNavigationUnselected;
 
   TextStyle _labelStyle(bool isSelected) {
-    const double _letterSpacing8 = 0.0;
     return DLTypos.textSmBold(
       color: isSelected ? DLColors.black : DLColors.grey400,
-    ).copyWith(letterSpacing: _letterSpacing8);
+    ).copyWith(letterSpacing: 0.0);
   }
 
   @override
@@ -106,11 +106,10 @@ class DLBottomNavTab extends StatelessWidget {
       }
     }
 
-    // 3) Badge (classic switch statement for Dart 2.x)
+    // 3) Badge
     Widget iconWithBadge = baseIcon;
     switch (badge) {
       case DLBnavBadge.none:
-        // already baseIcon
         break;
       case DLBnavBadge.sm:
         iconWithBadge = DLBadgeAnchor(
@@ -140,20 +139,36 @@ class DLBottomNavTab extends StatelessWidget {
         iconWithBadge,
         if (showLabel) ...<Widget>[
           const SizedBox(height: DLSpacing.p8),
-          Text(
-            label,
-            style: _labelStyle(selected),
-            textAlign: TextAlign.center,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+          Builder(
+            builder: (context) {
+              final style = _labelStyle(selected);
+              return Text(
+                label,
+                style: style,
+                textAlign: TextAlign.center,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+
+                // FIX: stabilize font metrics to avoid fractional pixel overflow
+                textHeightBehavior: const TextHeightBehavior(
+                  applyHeightToFirstAscent: false,
+                  applyHeightToLastDescent: false,
+                ),
+                strutStyle: StrutStyle(
+                  fontSize: style.fontSize,
+                  height: style.height,
+                  forceStrutHeight: true,
+                ),
+              );
+            },
           ),
         ],
         const SizedBox(height: DLSpacing.p8),
       ],
     );
 
-    // 5) Return the built widget (ensures build always returns a Widget)
+    // 5) Return
     return Semantics(
       selected: selected,
       button: true,

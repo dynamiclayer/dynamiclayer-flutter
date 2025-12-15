@@ -8,17 +8,6 @@ import '../../../dynamiclayers.dart';
 /// sm: 44 x 20
 enum DLChipSize { lg, md, sm }
 
-/// Filter/selection chip
-///
-/// Label typography per size:
-/// - lg → Inter, 600, size 16 (font/size/3), line-height token 3
-/// - md → Inter, 600, size 14 (font/size/2), line-height token 2
-/// - sm → Inter, 600, size 12 (font/size/1), line-height token 1
-///
-/// Label colors:
-/// - default → black (#000000)
-/// - active  → violet600 (#7630F7)
-/// - disabled → grey500 (#757575) + strikethrough
 class DLChip extends StatelessWidget {
   const DLChip({
     super.key,
@@ -31,25 +20,12 @@ class DLChip extends StatelessWidget {
     this.semanticLabel,
   });
 
-  /// Chip label
   final String label;
-
-  /// Size token
   final DLChipSize size;
-
-  /// If true → use active label color
   final bool active;
-
-  /// If false → disabled style (grey, strikethrough) and no interaction
   final bool enabled;
-
-  /// Tap callback (ignored when [enabled] == false)
   final VoidCallback? onTap;
-
-  /// If true → chip will stretch to take as much horizontal space as it can.
   final bool expanded;
-
-  /// Optional semantics override
   final String? semanticLabel;
 
   bool get _isDisabled => !enabled;
@@ -98,85 +74,85 @@ class DLChip extends StatelessWidget {
     }
   }
 
-  // ---- Label colors & decoration per state ---------------------------------
+  // ---- Colors (Black & White for active) ----------------------------------
+
+  Color get _backgroundColor {
+    if (_isDisabled) return DLColors.grey100;
+    if (active) return DLColors.black;
+    return DLColors.grey100; // inactive pill (light)
+  }
 
   Color get _labelColor {
     if (_isDisabled) return DLColors.grey500;
-    if (active) return DLColors.violet600;
+    if (active) return DLColors.white;
     return DLColors.black;
   }
 
-  TextDecoration? get _decoration {
-    if (_isDisabled) return TextDecoration.lineThrough;
-    return TextDecoration.none;
-  }
+  // TextDecoration get _decoration =>
+  //     _isDisabled ? TextDecoration.lineThrough : TextDecoration.none;
 
   // ---- Typography per size -------------------------------------------------
 
   TextStyle _labelTextStyle() {
-    // base Inter style from tokens
     TextStyle base;
     switch (size) {
       case DLChipSize.lg:
-        // font/size/3 (16) + font/line-height/3 (24)
-        base = DLTypos.textBaseSemibold(
-          color: _labelColor,
-        ).copyWith(height: 24 / 16);
+        base = _isDisabled
+            ? DLTypos.textBaseStrike(
+                color: _labelColor,
+              ).copyWith(height: 24 / 16)
+            : DLTypos.textBaseSemibold(
+                color: _labelColor,
+              ).copyWith(height: 24 / 16);
         break;
       case DLChipSize.md:
-        // font/size/2 (14) + font/line-height/2 (20)
-        base = DLTypos.textSmSemibold(color: _labelColor);
+        base = _isDisabled
+            ? DLTypos.textSmStrike(color: _labelColor)
+            : DLTypos.textSmSemibold(color: _labelColor);
         break;
       case DLChipSize.sm:
-        // font/size/1 (12) + font/line-height/1 (16)
-        base = DLTypos.textXsSemibold(color: _labelColor);
+        base = _isDisabled
+            ? DLTypos.textXsStrike(color: _labelColor)
+            : DLTypos.textXsSemibold(color: _labelColor);
         break;
     }
 
-    // letter-spacing tokens are assumed to be 0 or close to default,
-    // so we keep Flutter's default. Only decoration is overridden here.
-    return base.copyWith(decoration: _decoration, decorationColor: _labelColor);
+    return base;
   }
 
   @override
   Widget build(BuildContext context) {
-    final labelText = Text(
-      label,
-      style: _labelTextStyle(),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      textAlign: TextAlign.center,
-    );
-
     final chipBody = Container(
       padding: _padding,
       constraints: BoxConstraints(minWidth: _minWidth, minHeight: _minHeight),
       decoration: BoxDecoration(
-        // Note: label spec controls text color;
-        // background stays grey100/violet100 per earlier visual spec.
-        color: DLColors.grey100,
+        color: _backgroundColor,
         borderRadius: DLRadii.brFull,
       ),
       alignment: Alignment.center,
-      child: labelText,
+      child: Text(
+        label,
+        style: _labelTextStyle(),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+      ),
     );
 
     final wrapped = expanded
         ? SizedBox(width: double.infinity, child: chipBody)
         : chipBody;
 
-    final interactive = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _isDisabled ? null : onTap,
-      child: wrapped,
-    );
-
     return Semantics(
       button: true,
       enabled: !_isDisabled,
       selected: active,
       label: semanticLabel ?? label,
-      child: interactive,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _isDisabled ? null : onTap,
+        child: wrapped,
+      ),
     );
   }
 }

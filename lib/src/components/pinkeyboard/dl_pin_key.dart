@@ -106,12 +106,12 @@ class _DLPinKeyState extends State<DLPinKey> {
             (widget.iconAsset != null
                 ? SvgPicture.asset(
                     widget.iconAsset!,
-                    width: 24,
-                    height: 24,
+                    width: 8,
+                    height: 14,
                     color: DLColors.black,
                   )
                 : const SizedBox());
-        return Center(child: iconWidget);
+        return Center(child: SizedBox(child: iconWidget));
     }
   }
 

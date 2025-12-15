@@ -1,74 +1,195 @@
 // lib/src/components/coachmark/dl_coach_mark.dart
 import 'package:flutter/material.dart';
+
 import '../../../dynamiclayers.dart';
-import '../pagination/dl_pagination.dart'; // ← uses your pagination component
+import '../pagination/dl_pagination.dart';
 
 /// Direction for the little callout pointer.
 enum DLCoachMarkDirection { bottom, top, left, right }
 
 /// Tutorial / coach-mark bubble.
 ///
-/// Features:
-/// - Fixed max width (343px) but height is dynamic.
-/// - Title + message.
-/// - Pagination dots (current step / total).
-/// - Back / Next buttons.
-/// - Pointer that can be at top / bottom / left / right.
-///
-/// This widget only draws the bubble itself; you can place it in an Overlay,
-/// Align, Positioned, etc. to point at any part of the UI.
-class DLCoachMark extends StatelessWidget {
+/// Updates:
+/// - Internal step state (Next/Back updates pagination automatically).
+/// - Optional editable title + message via TextFields.
+/// - Optional callbacks for step change and text changes.
+class DLCoachMark extends StatefulWidget {
   const DLCoachMark({
     super.key,
-    required this.title,
-    required this.message,
-    required this.currentStep,
+
+    // Content
+    this.title = '',
+    this.message = '',
+
+    // Steps
     required this.totalSteps,
-    required this.onNext,
-    required this.onBack,
-    this.direction = DLCoachMarkDirection.bottom,
-    this.maxWidth = 343,
+    this.initialStep = 0,
+    this.onStepChanged,
+
+    // Buttons
+    this.onNext,
+    this.onBack,
     this.showBack = true,
     this.showNext = true,
-    this.backEnabled = true,
-    this.nextEnabled = true,
-  }) : assert(totalSteps >= 1),
-       assert(currentStep >= 0 && currentStep < totalSteps);
 
-  /// Title text (bold).
+    // Enable rules (optional; defaults computed from step)
+    this.backEnabled,
+    this.nextEnabled,
+
+    // Pointer
+    this.direction = DLCoachMarkDirection.bottom,
+
+    // Layout
+    this.maxWidth = 343,
+
+    // Editable text
+    this.editable = false,
+    this.titleController,
+    this.messageController,
+    this.onTitleChanged,
+    this.onMessageChanged,
+    this.titleHint = 'Title',
+    this.messageHint = 'Message',
+  }) : assert(totalSteps >= 1),
+       assert(initialStep >= 0 && initialStep < totalSteps);
+
+  /// Title text (non-editable mode).
   final String title;
 
-  /// Body text.
+  /// Body text (non-editable mode).
   final String message;
-
-  /// Zero-based index of the current step (0..totalSteps-1).
-  final int currentStep;
 
   /// Total number of steps.
   final int totalSteps;
 
-  /// Called when user taps "Next".
-  final VoidCallback onNext;
+  /// Initial step (zero-based).
+  final int initialStep;
 
-  /// Called when user taps "Back".
-  final VoidCallback onBack;
+  /// Notifies whenever internal step changes.
+  final ValueChanged<int>? onStepChanged;
 
-  /// Pointer side (top / bottom / left / right).
-  final DLCoachMarkDirection direction;
+  /// Optional callbacks invoked after internal step updates.
+  /// If you need to close/reposition an Overlay, do it here.
+  final ValueChanged<int>? onNext;
+  final ValueChanged<int>? onBack;
 
-  /// Maximum width of the bubble (defaults to 343).
-  final double maxWidth;
-
-  /// Visibility / enabled flags for the buttons.
+  /// Visibility flags for the buttons.
   final bool showBack;
   final bool showNext;
-  final bool backEnabled;
-  final bool nextEnabled;
+
+  /// Optional overrides for enabled states.
+  /// If null, they are computed from current step.
+  final bool? backEnabled;
+  final bool? nextEnabled;
+
+  /// Pointer side.
+  final DLCoachMarkDirection direction;
+
+  /// Maximum width of the bubble.
+  final double maxWidth;
+
+  /// When true, title/message become editable text fields.
+  final bool editable;
+
+  /// Optional controllers (recommended when editable = true).
+  final TextEditingController? titleController;
+  final TextEditingController? messageController;
+
+  /// Optional change callbacks (editable mode).
+  final ValueChanged<String>? onTitleChanged;
+  final ValueChanged<String>? onMessageChanged;
+
+  /// Hints for editable fields.
+  final String titleHint;
+  final String messageHint;
+
+  @override
+  State<DLCoachMark> createState() => _DLCoachMarkState();
+}
+
+class _DLCoachMarkState extends State<DLCoachMark> {
+  late int _step;
+
+  TextEditingController? _ownedTitleController;
+  TextEditingController? _ownedMessageController;
+
+  TextEditingController get _titleC =>
+      widget.titleController ?? _ownedTitleController!;
+  TextEditingController get _messageC =>
+      widget.messageController ?? _ownedMessageController!;
+
+  @override
+  void initState() {
+    super.initState();
+    _step = widget.initialStep;
+
+    if (widget.editable) {
+      if (widget.titleController == null) {
+        _ownedTitleController = TextEditingController(text: widget.title);
+      }
+      if (widget.messageController == null) {
+        _ownedMessageController = TextEditingController(text: widget.message);
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant DLCoachMark oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // If totalSteps shrinks, clamp step
+    if (_step >= widget.totalSteps) {
+      _step = widget.totalSteps - 1;
+    }
+
+    // If editable toggles on, ensure controllers exist.
+    if (widget.editable && oldWidget.editable != widget.editable) {
+      if (widget.titleController == null && _ownedTitleController == null) {
+        _ownedTitleController = TextEditingController(text: widget.title);
+      }
+      if (widget.messageController == null && _ownedMessageController == null) {
+        _ownedMessageController = TextEditingController(text: widget.message);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _ownedTitleController?.dispose();
+    _ownedMessageController?.dispose();
+    super.dispose();
+  }
+
+  bool get _computedBackEnabled => _step > 0;
+  bool get _computedNextEnabled => _step < widget.totalSteps - 1;
+
+  void _goBack() {
+    if (!(widget.backEnabled ?? _computedBackEnabled)) return;
+    if (_step <= 0) return;
+
+    setState(() => _step -= 1);
+
+    widget.onStepChanged?.call(_step);
+    widget.onBack?.call(_step);
+  }
+
+  void _goNext() {
+    if (!(widget.nextEnabled ?? _computedNextEnabled)) return;
+    if (_step >= widget.totalSteps - 1) return;
+
+    setState(() => _step += 1);
+
+    widget.onStepChanged?.call(_step);
+    widget.onNext?.call(_step);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBackEnabled = widget.backEnabled ?? _computedBackEnabled;
+    final effectiveNextEnabled = widget.nextEnabled ?? _computedNextEnabled;
+
     final bubble = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
+      constraints: BoxConstraints(maxWidth: widget.maxWidth),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: DLColors.black,
@@ -81,41 +202,59 @@ class DLCoachMark extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Text(
-                title,
-                style: DLTypos.textBaseSemibold(color: DLColors.white),
-              ),
+              if (!widget.editable)
+                Text(
+                  widget.title,
+                  style: DLTypos.textBaseSemibold(color: DLColors.white),
+                )
+              else
+                _CoachTextField(
+                  controller: _titleC,
+                  hintText: widget.titleHint,
+                  textStyle: DLTypos.textBaseSemibold(color: DLColors.white),
+                  onChanged: widget.onTitleChanged,
+                  maxLines: 1,
+                ),
+
               const SizedBox(height: DLSpacing.p8),
 
               // Message
-              Text(
-                message,
-                style: DLTypos.textSmRegular(color: DLColors.white),
-              ),
+              if (!widget.editable)
+                Text(
+                  widget.message,
+                  style: DLTypos.textSmRegular(color: DLColors.white),
+                )
+              else
+                _CoachTextField(
+                  controller: _messageC,
+                  hintText: widget.messageHint,
+                  textStyle: DLTypos.textSmRegular(color: DLColors.white),
+                  onChanged: widget.onMessageChanged,
+                  maxLines: 6,
+                ),
+
               const SizedBox(height: DLSpacing.p12),
 
-              // Bottom row: pagination + buttons
               Row(
                 children: [
-                  // Pagination dots
                   _CoachPagination(
-                    currentStep: currentStep,
-                    totalSteps: totalSteps,
+                    currentStep: _step,
+                    totalSteps: widget.totalSteps,
                   ),
                   const Spacer(),
-                  if (showBack) ...[
+                  if (widget.showBack) ...[
                     _CoachButton(
                       label: 'Back',
-                      enabled: backEnabled,
-                      onTap: backEnabled ? onBack : null,
+                      enabled: effectiveBackEnabled,
+                      onTap: effectiveBackEnabled ? _goBack : null,
                     ),
                     const SizedBox(width: DLSpacing.p8),
                   ],
-                  if (showNext)
+                  if (widget.showNext)
                     _CoachButton(
                       label: 'Next',
-                      enabled: nextEnabled,
-                      onTap: nextEnabled ? onNext : null,
+                      enabled: effectiveNextEnabled,
+                      onTap: effectiveNextEnabled ? _goNext : null,
                     ),
                 ],
               ),
@@ -129,7 +268,7 @@ class DLCoachMark extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         bubble,
-        _CoachPointer(direction: direction),
+        _CoachPointer(direction: widget.direction),
       ],
     );
   }
@@ -167,7 +306,7 @@ class _CoachPagination extends StatelessWidget {
     return DLPagination(
       count: totalSteps,
       activeIndex: currentStep,
-      mode: DLPaginationMode.dark, // white dots on dark bg
+      mode: DLPaginationMode.dark,
       expanded: false,
     );
   }
@@ -184,8 +323,8 @@ class _CoachPointer extends StatelessWidget {
     const double size = 12;
     const double half = size / 2;
 
-    Widget diamond = Transform.rotate(
-      angle: 0.78539816339, // 45 degrees in radians
+    final diamond = Transform.rotate(
+      angle: 0.78539816339, // 45 degrees
       child: Container(width: size, height: size, color: DLColors.black),
     );
 
@@ -219,5 +358,40 @@ class _CoachPointer extends StatelessWidget {
           child: Center(child: diamond),
         );
     }
+  }
+}
+
+/// Minimal text field styling for the dark bubble.
+class _CoachTextField extends StatelessWidget {
+  const _CoachTextField({
+    required this.controller,
+    required this.hintText,
+    required this.textStyle,
+    required this.maxLines,
+    this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final TextStyle textStyle;
+  final int maxLines;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      maxLines: maxLines,
+      style: textStyle,
+      cursorColor: DLColors.white,
+      decoration: InputDecoration(
+        isDense: true,
+        contentPadding: EdgeInsets.zero,
+        border: InputBorder.none,
+        hintText: hintText,
+        hintStyle: textStyle.copyWith(color: DLColors.white.withOpacity(0.6)),
+      ),
+    );
   }
 }

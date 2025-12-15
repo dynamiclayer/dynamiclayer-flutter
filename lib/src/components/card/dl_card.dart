@@ -1,3 +1,4 @@
+// lib/src/components/card/dl_card.dart
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart';
 
@@ -20,7 +21,7 @@ class DLCard extends StatelessWidget {
     this.semanticsLabel,
   });
 
-  /// Leading icon widget (typically 24x24 inside a 40x40 box)
+  /// Leading icon widget (Figma: 24x24)
   final Widget icon;
 
   final String title;
@@ -29,28 +30,22 @@ class DLCard extends StatelessWidget {
   final DLCardSize size;
   final DLCardState state;
 
-  /// Tap callback. If null, card is treated as non-interactive.
-  /// (Disabled state will also ignore taps.)
   final VoidCallback? onTap;
-
-  /// Allow hiding description text if needed
   final bool descriptionVisible;
-
-  /// Optional semantics override
   final String? semanticsLabel;
 
   // ---------------------------------------------------------------------------
   // Tokens
   // ---------------------------------------------------------------------------
 
-  double get _minWidth => 160;
+  double get _fixedWidth => 160;
 
   double get _minHeight {
     switch (size) {
       case DLCardSize.md:
-        return 64;
+        return 64; // Hug 64 in Figma for md
       case DLCardSize.lg:
-        return 112;
+        return 112; // Hug 112 in Figma for lg
     }
   }
 
@@ -66,32 +61,32 @@ class DLCard extends StatelessWidget {
   double get _gap {
     switch (size) {
       case DLCardSize.md:
-        return 12;
+        return DLSpacing.p12;
       case DLCardSize.lg:
-        return 16;
+        return DLSpacing.p16;
     }
   }
 
-  // Background is grey100 for all states
+  // Background is grey100 for all states (per your current token use)
   Color get _background => DLColors.grey100;
 
   double get _borderWidth {
     switch (state) {
+      case DLCardState.active:
+        return DLBorderWidth.w2;
       case DLCardState.normal:
       case DLCardState.disabled:
         return DLBorderWidth.w0;
-      case DLCardState.active:
-        return DLBorderWidth.w2;
     }
   }
 
   Color? get _borderColor {
     switch (state) {
+      case DLCardState.active:
+        return DLColors.black;
       case DLCardState.normal:
       case DLCardState.disabled:
         return null;
-      case DLCardState.active:
-        return DLColors.black;
     }
   }
 
@@ -101,9 +96,7 @@ class DLCard extends StatelessWidget {
       case DLCardState.active:
         return DLTypos.textBaseSemibold(color: DLColors.black);
       case DLCardState.disabled:
-        return DLTypos.textBaseSemibold(
-          color: DLColors.grey400,
-        ).copyWith(decoration: TextDecoration.lineThrough);
+        return DLTypos.textBaseStrike(color: DLColors.grey400);
     }
   }
 
@@ -113,9 +106,7 @@ class DLCard extends StatelessWidget {
       case DLCardState.active:
         return DLTypos.textBaseRegular(color: DLColors.black);
       case DLCardState.disabled:
-        return DLTypos.textBaseRegular(
-          color: DLColors.grey400,
-        ).copyWith(decoration: TextDecoration.lineThrough);
+        return DLTypos.textBaseStrike(color: DLColors.grey400);
     }
   }
 
@@ -132,16 +123,10 @@ class DLCard extends StatelessWidget {
   bool get _isDisabled => state == DLCardState.disabled;
 
   Widget _buildIcon() {
-    // Plain icon, no button chrome — matches Figma.
-    return SizedBox(
-      width: 40,
-      height: 40,
-      child: Center(
-        child: IconTheme(
-          data: IconThemeData(size: 24, color: _iconColor),
-          child: icon,
-        ),
-      ),
+    // Figma: icon is 24x24 (no 40x40 container)
+    return IconTheme(
+      data: IconThemeData(size: 24, color: _iconColor),
+      child: SizedBox(width: 24, height: 24, child: Center(child: icon)),
     );
   }
 
@@ -170,7 +155,7 @@ class DLCard extends StatelessWidget {
   }
 
   Widget _buildMdLayout() {
-    // Icon + text in a row (top row in Figma)
+    // md: icon + text in a row, centered vertically by row height
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -182,7 +167,7 @@ class DLCard extends StatelessWidget {
   }
 
   Widget _buildLgLayout() {
-    // Icon on top, text below in a column (bottom row in Figma)
+    // lg: icon top-left, then text below (both aligned to start)
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,21 +181,24 @@ class DLCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = ConstrainedBox(
-      constraints: BoxConstraints(minWidth: _minWidth, minHeight: _minHeight),
-      child: Container(
-        decoration: BoxDecoration(
-          color: _background,
-          borderRadius: DLRadii.brLg, // rounded_lg
-          border: _borderWidth > 0
-              ? Border.all(
-                  width: _borderWidth,
-                  color: _borderColor ?? Colors.transparent,
-                )
-              : null,
+    final content = SizedBox(
+      width: _fixedWidth, // Figma: W Fixed 160
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: _minHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            color: _background,
+            borderRadius: DLRadii.brLg,
+            border: _borderWidth > 0
+                ? Border.all(
+                    width: _borderWidth,
+                    color: _borderColor ?? Colors.transparent,
+                  )
+                : null,
+          ),
+          padding: _padding,
+          child: size == DLCardSize.md ? _buildMdLayout() : _buildLgLayout(),
         ),
-        padding: _padding,
-        child: size == DLCardSize.md ? _buildMdLayout() : _buildLgLayout(),
       ),
     );
 
@@ -221,10 +209,7 @@ class DLCard extends StatelessWidget {
       child: content,
     );
 
-    // Disabled state and null onTap → non-interactive card.
-    if (_isDisabled || onTap == null) {
-      return semanticsWrapped;
-    }
+    if (_isDisabled || onTap == null) return semanticsWrapped;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

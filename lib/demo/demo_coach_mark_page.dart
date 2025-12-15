@@ -3,8 +3,25 @@ import 'package:flutter/material.dart';
 import '../dynamiclayers.dart';
 import '../src/components/coachmark/dl_coach_mark.dart';
 
-class DemoCoachMarkPage extends StatelessWidget {
+class DemoCoachMarkPage extends StatefulWidget {
   const DemoCoachMarkPage({super.key});
+
+  @override
+  State<DemoCoachMarkPage> createState() => _DemoCoachMarkPageState();
+}
+
+class _DemoCoachMarkPageState extends State<DemoCoachMarkPage> {
+  final _titleC = TextEditingController(text: 'Title');
+  final _messageC = TextEditingController(
+    text: 'Pack my box with five dozen liquor jugs.\nHow vexingly quick draft.',
+  );
+
+  @override
+  void dispose() {
+    _titleC.dispose();
+    _messageC.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +33,10 @@ class DemoCoachMarkPage extends StatelessWidget {
           _SectionHeader('Coach mark directions'),
           SizedBox(height: 8),
           _CoachMarkPreview(),
+          SizedBox(height: 24),
+          _SectionHeader('Interactive (pagination + editable text)'),
+          SizedBox(height: 8),
+          _InteractiveCoachMarkBlock(),
           SizedBox(height: 24),
           _SubHeader('How to use'),
           SizedBox(height: 8),
@@ -44,61 +65,113 @@ class _CoachMarkPreview extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Bottom pointer
           DLCoachMark(
             title: 'Title',
             message:
                 'Pack my box with five dozen liquor jugs.\n'
                 'How vexingly quick draft.',
-            currentStep: 0,
             totalSteps: 2,
+            initialStep: 0,
             direction: DLCoachMarkDirection.bottom,
-            onBack: () {},
-            onNext: () {},
           ),
           const SizedBox(height: 24),
 
-          // Right pointer
           DLCoachMark(
             title: 'Title',
             message:
                 'Pack my box with five dozen liquor jugs.\n'
                 'How vexingly quick draft.',
-            currentStep: 0,
             totalSteps: 2,
+            initialStep: 0,
             direction: DLCoachMarkDirection.right,
-            onBack: () {},
-            onNext: () {},
           ),
           const SizedBox(height: 24),
 
-          // Left pointer
           DLCoachMark(
             title: 'Title',
             message:
                 'Pack my box with five dozen liquor jugs.\n'
                 'How vexingly quick draft.',
-            currentStep: 0,
             totalSteps: 2,
+            initialStep: 0,
             direction: DLCoachMarkDirection.left,
-            onBack: () {},
-            onNext: () {},
           ),
           const SizedBox(height: 24),
 
-          // Top pointer
           DLCoachMark(
             title: 'Title',
             message:
                 'Pack my box with five dozen liquor jugs.\n'
                 'How vexingly quick draft.',
-            currentStep: 0,
             totalSteps: 2,
+            initialStep: 0,
             direction: DLCoachMarkDirection.top,
-            onBack: () {},
-            onNext: () {},
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// ---------------------------------------------------------------------------
+/// INTERACTIVE – pagination changes with Next/Back + editable title/message
+/// ---------------------------------------------------------------------------
+
+class _InteractiveCoachMarkBlock extends StatefulWidget {
+  const _InteractiveCoachMarkBlock({super.key});
+
+  @override
+  State<_InteractiveCoachMarkBlock> createState() =>
+      _InteractiveCoachMarkBlockState();
+}
+
+class _InteractiveCoachMarkBlockState
+    extends State<_InteractiveCoachMarkBlock> {
+  late final TextEditingController _titleC;
+  late final TextEditingController _messageC;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleC = TextEditingController(text: 'Welcome');
+    _messageC = TextEditingController(
+      text:
+          'This is an editable coach mark.\n'
+          'Tap Next/Back to see pagination update.',
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleC.dispose();
+    _messageC.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: DLColors.violet400, width: 1),
+      ),
+      child: DLCoachMark(
+        totalSteps: 4,
+        initialStep: 0,
+        direction: DLCoachMarkDirection.bottom,
+
+        // editable title + message
+        editable: true,
+        titleController: _titleC,
+        messageController: _messageC,
+        onTitleChanged: (v) {},
+        onMessageChanged: (v) {},
+
+        // If you later use Overlay and need to reposition per step, use this:
+        onStepChanged: (step) {
+          // debugPrint('Step changed => $step');
+        },
       ),
     );
   }
@@ -165,78 +238,10 @@ class _CodeBox extends StatelessWidget {
   }
 }
 
-/// ---------- "How to use" snippet shown in the docs ------------------------
-
 const String _coachMarkUsageCode = '''
-// 1. Define a list of steps
-final steps = [
-  const DLCoachMark(
-    title: 'Welcome',
-    message: 'This is your dashboard. Here you can see an overview.',
-    currentStep: 0,
-    totalSteps: 3,
-    direction: DLCoachMarkDirection.bottom,
-    onBack: _noop,
-    onNext: _noop,
-  ),
-  const DLCoachMark(
-    title: 'Filter',
-    message: 'Use this filter to narrow down the results.',
-    currentStep: 1,
-    totalSteps: 3,
-    direction: DLCoachMarkDirection.right,
-    onBack: _noop,
-    onNext: _noop,
-  ),
-  const DLCoachMark(
-    title: 'Action button',
-    message: 'Tap here to create a new item.',
-    currentStep: 2,
-    totalSteps: 3,
-    direction: DLCoachMarkDirection.top,
-    onBack: _noop,
-    onNext: _noop,
-  ),
-];
-
-// 2. Show a coach mark using an OverlayEntry
-void showCoachMark(BuildContext context, DLCoachMark mark) {
-  final overlay = Overlay.of(context);
-  if (overlay == null) return;
-
-  late OverlayEntry entry;
-  entry = OverlayEntry(
-    builder: (context) => Positioned(
-      left: 16,
-      right: 16,
-      bottom: 120, // position near the target widget
-      child: mark,
-    ),
-  );
-
-  overlay.insert(entry);
-
-  // In your real code, pass onBack/onNext callbacks that remove
-  // the current entry and insert the next/previous one.
-}
-
-// 3. Basic example
-ElevatedButton(
-  onPressed: () {
-    showCoachMark(
-      context,
-      DLCoachMark(
-        title: 'Title',
-        message: 'Pack my box with five dozen liquor jugs.\\n'
-                 'How vexingly quick draft.',
-        currentStep: 0,
-        totalSteps: 2,
-        direction: DLCoachMarkDirection.bottom,
-        onBack: () {},
-        onNext: () {},
-      ),
-    );
-  },
-  child: const Text('Start tutorial'),
-);
+// Use DLCoachMark inside an OverlayEntry and reposition it as needed.
+// The updated DLCoachMark manages step internally:
+// - Next/Back updates the pagination automatically.
+// - Use onStepChanged(step) if you need to move the overlay per step.
+// - Use editable: true + controllers to allow editing title/message.
 ''';

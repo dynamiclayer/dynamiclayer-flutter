@@ -1,6 +1,7 @@
 // lib/src/components/message/dl_message_dock.dart
 import 'package:flutter/material.dart';
 import '../../../dynamiclayers.dart';
+import '../separator/dl_separator.dart';
 
 /// Bottom message input dock with separator, text field, and send button.
 ///
@@ -18,12 +19,7 @@ class DLMessageDock extends StatefulWidget {
     required this.onSend,
     this.hintText = 'Write a message...',
     this.enabled = true,
-    this.padding = const EdgeInsets.fromLTRB(
-      DLSpacing.p16,
-      DLSpacing.p8,
-      DLSpacing.p16,
-      DLSpacing.p8,
-    ),
+    this.padding = const EdgeInsets.all(DLSpacing.p16), // ✅ p16 on all sides
     this.showTopBorder = true,
   });
 
@@ -39,10 +35,10 @@ class DLMessageDock extends StatefulWidget {
   /// Whether the entire dock is enabled.
   final bool enabled;
 
-  /// Inner padding of the dock.
+  /// Inner padding of the dock (spacing around the row).
   final EdgeInsets padding;
 
-  /// Whether to draw a 1px separator line at the top.
+  /// Whether to draw a separator line at the top.
   final bool showTopBorder;
 
   @override
@@ -50,32 +46,39 @@ class DLMessageDock extends StatefulWidget {
 }
 
 class _DLMessageDockState extends State<DLMessageDock> {
-  late final TextEditingController _controller;
-  late final bool _ownsController;
+  late TextEditingController _controller;
+  late bool _ownsController;
   bool _hasText = false;
 
   @override
   void initState() {
     super.initState();
-    _ownsController = widget.controller == null;
-    _controller = widget.controller ?? TextEditingController();
-    _hasText = _controller.text.trim().isNotEmpty;
-    _controller.addListener(_handleTextChanged);
+    _attachController(widget.controller);
   }
 
   @override
   void didUpdateWidget(covariant DLMessageDock oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // If the external controller changes, re-wire listeners + disposal.
     if (oldWidget.controller != widget.controller) {
-      if (_ownsController) {
-        _controller.dispose();
-      }
-      final newController = widget.controller ?? TextEditingController();
-      _controller.removeListener(_handleTextChanged);
-      _controller = newController;
-      _ownsController = widget.controller == null;
-      _controller.addListener(_handleTextChanged);
-      _hasText = _controller.text.trim().isNotEmpty;
+      _detachController();
+      _attachController(widget.controller);
+      setState(() {}); // reflect new controller text immediately
+    }
+  }
+
+  void _attachController(TextEditingController? external) {
+    _ownsController = external == null;
+    _controller = external ?? TextEditingController();
+    _hasText = _controller.text.trim().isNotEmpty;
+    _controller.addListener(_handleTextChanged);
+  }
+
+  void _detachController() {
+    _controller.removeListener(_handleTextChanged);
+    if (_ownsController) {
+      _controller.dispose();
     }
   }
 
@@ -88,10 +91,7 @@ class _DLMessageDockState extends State<DLMessageDock> {
 
   @override
   void dispose() {
-    _controller.removeListener(_handleTextChanged);
-    if (_ownsController) {
-      _controller.dispose();
-    }
+    _detachController();
     super.dispose();
   }
 
@@ -101,38 +101,40 @@ class _DLMessageDockState extends State<DLMessageDock> {
     if (!_canSend) return;
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+
     widget.onSend(text);
     _controller.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-    final topBorder = widget.showTopBorder
-        ? Border(
-            top: BorderSide(color: DLColors.grey200, width: DLBorderWidth.w1),
-          )
-        : null;
-
     return SafeArea(
       top: false,
-      child: Container(
-        decoration: BoxDecoration(color: DLColors.white, border: topBorder),
-        padding: widget.padding,
-        child: Row(
-          children: [
-            // Input field ----------------------------------------------------
-            Expanded(
-              child: _MessageInputField(
-                controller: _controller,
-                enabled: widget.enabled,
-                hintText: widget.hintText,
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.showTopBorder)
+            const DLSeparator(), // ✅ separator component
+
+          Container(
+            width: double.infinity,
+            color: DLColors.white,
+            padding: widget.padding, // ✅ p16 on all sides (matches screenshot)
+            child: Row(
+              children: [
+                Expanded(
+                  child: _MessageInputField(
+                    controller: _controller,
+                    enabled: widget.enabled,
+                    hintText: widget.hintText,
+                  ),
+                ),
+                const SizedBox(width: DLSpacing.p8),
+                _SendButton(active: _canSend, onTap: _handleSend),
+              ],
             ),
-            const SizedBox(width: DLSpacing.p8),
-            // Send button ----------------------------------------------------
-            _SendButton(active: _canSend, onTap: _handleSend),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -163,7 +165,9 @@ class _MessageInputField extends StatelessWidget {
         controller: controller,
         enabled: enabled,
         maxLines: 1,
-        style: DLTypos.textBaseRegular(color: DLColors.black),
+        style: DLTypos.textBaseRegular(
+          color: enabled ? DLColors.black : DLColors.grey500,
+        ),
         decoration: InputDecoration(
           isDense: true,
           border: InputBorder.none,

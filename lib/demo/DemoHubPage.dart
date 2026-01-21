@@ -3,6 +3,9 @@ import 'package:dynamiclayer_flutter/demo/demo_separator_page.dart';
 import 'package:flutter/material.dart';
 
 // Your demos
+import 'demo_progress.dart';
+import 'demo_radio_group_page.dart';
+import 'demo_segmented_control_page.dart';
 import 'DemoAccordionPage.dart';
 import 'DemoAlertPage.dart';
 import 'DemoAvatarGroupPage.dart';
@@ -30,8 +33,16 @@ import 'demo_message_page.dart';
 import 'demo_pagination_page.dart';
 import 'demo_pin_keyboard_page.dart';
 import 'demo_radio_button_page.dart';
+import 'demo_slider_page.dart';
+import 'demo_snackbar_page.dart';
 import 'demo_switch_page.dart';
-import 'demo_timed_button_page.dart'; // DemoButtonDockPage
+import 'demo_tab_control_page.dart';
+import 'demo_tag_page.dart';
+import 'demo_textarea_page.dart';
+import 'demo_timed_button_page.dart';
+import 'demo_tooltip_page.dart';
+import 'demo_top_navigation_message_page.dart';
+import 'demo_top_navigation_page.dart'; // DemoButtonDockPage
 
 /// Central hub to open any demo screen — now responsive & polished.
 class DemoHubPage extends StatefulWidget {
@@ -71,6 +82,26 @@ class _DemoHubPageState extends State<DemoHubPage> {
       icon: Icons.password_outlined,
     ),
     _DemoEntry(
+      title: 'Textarea',
+      subtitle: 'default, active, filled, disabled',
+      builder: DemoTextareaPage.new,
+      icon: Icons.text_fields,
+    ),
+
+    _DemoEntry(
+      title: 'Tooltip',
+      subtitle: 'top, bottom, left, right',
+      builder: DemoTooltipPage.new,
+      icon: Icons.info_outline,
+    ),
+    _DemoEntry(
+      title: 'Top Navigation Message',
+      subtitle: 'single-line, two-line',
+      builder: DemoTopNavigationMessagePage.new,
+      icon: Icons.chat_bubble_outline,
+    ),
+
+    _DemoEntry(
       title: 'Coach Mark',
       subtitle: 'top,bottom,left right',
       builder: DemoCoachMarkPage.new,
@@ -81,6 +112,19 @@ class _DemoHubPageState extends State<DemoHubPage> {
       subtitle: 'default, active',
       builder: DemoMessageDockPage.new,
       icon: Icons.message_outlined,
+    ),
+    _DemoEntry(
+      title: 'Top Navigation',
+      subtitle: 'md, lg',
+      builder: DemoTopNavigationPage.new,
+      icon: Icons.vertical_align_top,
+    ),
+
+    _DemoEntry(
+      title: 'Tag',
+      subtitle: 'type, mode, size',
+      builder: DemoTagPage.new,
+      icon: Icons.local_offer_outlined,
     ),
     _DemoEntry(
       title: 'Message loading',
@@ -94,12 +138,45 @@ class _DemoHubPageState extends State<DemoHubPage> {
       builder: DemoMessagePage.new,
       icon: Icons.chat_outlined,
     ),
+
     _DemoEntry(
       title: 'Switch',
       subtitle: 'Default, active',
       builder: DemoSwitchPage.new,
       icon: Icons.toggle_on_outlined,
     ),
+    _DemoEntry(
+      title: 'Tab Control',
+      subtitle: 'Tab + Control (2/3/4)',
+      builder: DemoTabControlPage.new,
+      icon: Icons.tab_outlined,
+    ),
+
+    _DemoEntry(
+      title: 'Progress',
+      subtitle: 'Two states (delayed linear fill)',
+      builder: DemoProgressPage.new,
+      icon: Icons.linear_scale_outlined,
+    ),
+    _DemoEntry(
+      title: 'Radio Group',
+      subtitle: 'Single + 2/3/4 columns + disabled',
+      builder: DemoRadioGroupPage.new,
+      icon: Icons.radio_button_checked_outlined,
+    ),
+    _DemoEntry(
+      title: 'Slider',
+      subtitle: 'Default + Filled (4px track)',
+      builder: DemoSliderPage.new,
+      icon: Icons.tune,
+    ),
+    _DemoEntry(
+      title: 'Snackbar',
+      subtitle: 'Success / Error / Warning / Info',
+      builder: DemoSnackbarPage.new,
+      icon: Icons.notifications_none_outlined,
+    ),
+
     _DemoEntry(
       title: 'Pagination',
       subtitle: 'Dot, Pagination',
@@ -231,6 +308,12 @@ class _DemoHubPageState extends State<DemoHubPage> {
       subtitle: '2 / 3 / 4 tabs with labels',
       builder: DemoBottomNavBarPage.new,
       icon: Icons.explore_outlined,
+    ),
+    _DemoEntry(
+      title: 'Segmented Control',
+      subtitle: '2 / 3 / 4 segments with animated indicator',
+      builder: DemoSegmentedControlPage.new,
+      icon: Icons.segment,
     ),
   ];
 

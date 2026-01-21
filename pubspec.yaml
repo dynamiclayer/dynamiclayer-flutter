@@ -29,4 +29,5 @@ flutter:
     - assets/accordion/
     - assets/pinkeyboard/
     - assets/line_item/
+    - assets/snackbar/
 

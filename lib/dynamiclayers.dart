@@ -42,3 +42,16 @@ export 'src/components/avatar/dl_avatar_group.dart';
 // Bottom Nav
 export 'src/components/bottom_nav/dl_bottom_nav_tab.dart';
 export 'src/components/bottom_nav/dl_bottom_nav_bar.dart';
+
+export 'src/components/progress/dl_progress.dart';
+export 'src/components/segmented_control/dl_segmented_control.dart';
+export 'src/components/slider/dl_slider.dart';
+export 'src/components/snackbar/dl_snackbar.dart';
+export 'src/components/tab_control/dl_tab_control_tab.dart';
+export 'src/components/tab_control/dl_tab_control.dart';
+export 'src/components/tag/dl_tag.dart';
+export 'src/components/radio_group/dl_radio_group.dart';
+export 'src/components/textarea/dl_textarea.dart';
+export 'demo/demo_tooltip_page.dart';
+export 'src/components/top_navigation/dl_top_navigation.dart';
+export 'src/components/top_navigation_message/dl_top_navigation_message.dart';

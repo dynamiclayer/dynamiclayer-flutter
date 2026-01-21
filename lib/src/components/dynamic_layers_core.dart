@@ -15,6 +15,33 @@ class DynamicLayers {
   static _BadgeFactory get badge => const _BadgeFactory._();
   static _AvatarFactory get avatar => const _AvatarFactory._();
   static _AvatarGroupFactory get avatarGroup => const _AvatarGroupFactory._();
+  static _ProgressFactory get progress => const _ProgressFactory._();
+}
+
+class _ProgressFactory {
+  const _ProgressFactory._();
+
+  Widget call({
+    DLProgressState state = DLProgressState.one,
+    double? width = 343,
+    double height = 8,
+    double radius = 9999,
+    Color? trackColor,
+    Color? fillColor,
+    Duration animationDelay = const Duration(milliseconds: 300),
+    Duration animationDuration = const Duration(milliseconds: 2400),
+  }) {
+    return DLProgress(
+      state: state,
+      width: width,
+      height: height,
+      radius: radius,
+      trackColor: trackColor,
+      fillColor: fillColor,
+      animationDelay: animationDelay,
+      animationDuration: animationDuration,
+    );
+  }
 }
 
 class _ButtonFactory {

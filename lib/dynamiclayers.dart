@@ -55,3 +55,4 @@ export 'src/components/textarea/dl_textarea.dart';
 export 'demo/demo_tooltip_page.dart';
 export 'src/components/top_navigation/dl_top_navigation.dart';
 export 'src/components/top_navigation_message/dl_top_navigation_message.dart';
+export 'src/components/search/dl_search_field.dart';

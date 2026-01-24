@@ -26,4 +26,11 @@ class Assets {
       'assets/line_item/arrow_farword.svg';
   static const String pinkeyboardArrowBack =
       'assets/pinkeyboard/arrow_back.svg';
+  static const String searchSearch = 'assets/search/search.svg';
+  static const String searchX = 'assets/search/x.svg';
+  static const String snackbarError = 'assets/snackbar/error.svg';
+  static const String snackbarInfo = 'assets/snackbar/info.svg';
+  static const String snackbarMultiUser = 'assets/snackbar/multi_user.svg';
+  static const String snackbarSuccess = 'assets/snackbar/success.svg';
+  static const String snackbarWarning = 'assets/snackbar/warning.svg';
 }

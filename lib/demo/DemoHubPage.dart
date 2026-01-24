@@ -1,4 +1,5 @@
 import 'package:dynamiclayer_flutter/demo/DemoBadgePage.dart';
+import 'package:dynamiclayer_flutter/demo/demo_search_field_page.dart';
 import 'package:dynamiclayer_flutter/demo/demo_separator_page.dart';
 import 'package:flutter/material.dart';
 
@@ -59,6 +60,12 @@ class _DemoHubPageState extends State<DemoHubPage> {
   List<_DemoEntry> get _entries => <_DemoEntry>[
     _DemoEntry(
       title: 'Input',
+      subtitle: '15 variants',
+      builder: DemoSearchFieldPage.new,
+      icon: Icons.search,
+    ),
+    _DemoEntry(
+      title: 'Search Field',
       subtitle: '39 variants',
       builder: DemoInputFieldPage.new,
       icon: Icons.text_fields_outlined,
